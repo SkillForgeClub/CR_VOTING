@@ -2,8 +2,6 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
-import { createServer as createViteServer } from "vite";
-
 import { config } from "./server/config/index.js";
 import { securityHeaders, errorHandler } from "./server/middleware/securityHeaders.js";
 import authRoutes from "./server/routes/authRoutes.js";
@@ -84,11 +82,21 @@ app.use(errorHandler);
 // Development & Production Static / Vite Hosting
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
+    try {
+      const { createServer: createViteServer } = await import("vite");
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: "spa",
+      });
+      app.use(vite.middlewares);
+    } catch (err) {
+      console.warn("[Server] Vite dev server module not loaded, serving static files.");
+      const distPath = path.join(__dirname, "dist");
+      app.use(express.static(distPath));
+      app.get("*", (req, res) => {
+        res.sendFile(path.join(distPath, "index.html"));
+      });
+    }
   } else {
     const distPath = path.join(__dirname, "dist");
     app.use(express.static(distPath));
