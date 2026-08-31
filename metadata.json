@@ -1,0 +1,8 @@
+{
+  "name": "VIIT CR ELECTIONS 2026",
+  "description": "Official Class Representative Election Portal for Vignan's Institute of Information Technology (VIIT), Department of Data Science, organized by SkillForge Club.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

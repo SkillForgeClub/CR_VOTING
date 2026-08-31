@@ -1,0 +1,36 @@
+# ============================================================
+# VIIT CR ELECTIONS 2026 - RENDER BLUEPRINT SPECIFICATION
+# ============================================================
+services:
+  - type: web
+    name: viit-cr-elections-2026
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install && npm run build
+    startCommand: node server.js
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: ELECTION_MODE
+        value: PRODUCTION
+      - key: STUDENT_AUTH_MODE
+        value: DIRECT_ROSTER
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: APP_SECRET
+        generateValue: true
+      - key: ADMIN_AUTH_SECRET
+        generateValue: true
+      - key: ADMIN_DEFAULT_USER
+        value: admin
+      - key: ADMIN_DEFAULT_PASS
+        sync: false
