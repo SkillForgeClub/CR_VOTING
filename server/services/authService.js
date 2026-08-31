@@ -73,22 +73,35 @@ export const authService = {
       };
     }
 
-    // 3. Verify Name Strictly
-    const normalize = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+    // 3. Verify Name Strictly (Mandatory, Case-Insensitive, Space-Insensitive)
+    const normalize = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
     const rosterNorm = normalize(student.name);
     const inputNorm = normalize(cleanName);
 
     const nameMatches =
-      rosterNorm === inputNorm ||
-      rosterNorm.includes(inputNorm) ||
-      inputNorm.includes(rosterNorm) ||
-      cleanName.split(" ").some((part) => part.length >= 3 && student.name.toLowerCase().includes(part.toLowerCase()));
+      rosterNorm.length > 0 &&
+      inputNorm.length > 0 &&
+      (rosterNorm === inputNorm ||
+        rosterNorm.includes(inputNorm) ||
+        inputNorm.includes(rosterNorm) ||
+        cleanName
+          .split(/\s+/)
+          .filter((p) => p.length >= 2)
+          .some((part) => rosterNorm.includes(normalize(part))));
 
     if (!nameMatches) {
+      auditService.log({
+        requestId,
+        actorType: "STUDENT",
+        actorId: cleanRoll,
+        action: AuditActions.LOGIN_FAILED,
+        status: "FAILED",
+        metadata: { reason: "NAME_MISMATCH", rollNumber: cleanRoll, providedName: cleanName, expectedName: student.name },
+      });
       throw {
         status: 401,
         code: "NAME_MISMATCH",
-        message: `The entered name does not match the official departmental record for roll number ${cleanRoll}.`,
+        message: `The entered name '${cleanName}' does not match official records for roll number ${cleanRoll}.`,
       };
     }
 
