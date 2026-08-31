@@ -3,7 +3,7 @@
 # ============================================================
 
 # --- Stage 1: Build Frontend Assets ---
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ COPY . .
 RUN npm run build
 
 # --- Stage 2: Production Runtime ---
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 
 WORKDIR /app
 

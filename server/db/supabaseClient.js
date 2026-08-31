@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
+import WebSocket from "ws";
 dotenv.config();
 
 function isValidKey(k) {
@@ -20,6 +21,7 @@ const supabaseServiceKey = isValidKey(rawServiceKey)
   ? rawServiceKey
   : (isValidKey(rawAnonKey) ? rawAnonKey : "");
 
+
 export const isSupabaseServerConfigured = () => {
   return Boolean(
     supabaseUrl &&
@@ -34,6 +36,9 @@ export const supabaseServer = isSupabaseServerConfigured()
       auth: {
         autoRefreshToken: false,
         persistSession: false,
+      },
+      realtime: {
+        transport: typeof globalThis.WebSocket !== "undefined" ? globalThis.WebSocket : WebSocket,
       },
     })
   : null;
