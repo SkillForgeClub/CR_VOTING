@@ -2,6 +2,9 @@ import config from "../config/index.js";
 import studentService from "./studentService.js";
 import auditService, { AuditActions } from "./auditService.js";
 import { createSessionToken, verifySessionToken } from "../utils/cryptoUtils.js";
+import databaseAdapter from "../db/databaseAdapter.js";
+import supabaseServer from "../db/supabaseClient.js";
+import localStore from "../db/localStore.js";
 
 export const authService = {
   /**
@@ -16,8 +19,35 @@ export const authService = {
     const cleanName = name.trim();
     const cleanSection = (section || "A").trim().toUpperCase();
 
-    // 1. Check Student in Authoritative Roster
-    const student = studentService.getStudentByRoll(cleanRoll);
+    // 1. Check Student in Authoritative Local Roster
+    let student = studentService.getStudentByRoll(cleanRoll);
+
+    // If not in local store, query cloud Supabase directly
+    if (!student && databaseAdapter.isSupabaseActive() && supabaseServer) {
+      try {
+        const { data: sbRow } = await supabaseServer
+          .from("students")
+          .select("*")
+          .eq("roll_number", cleanRoll)
+          .maybeSingle();
+
+        if (sbRow) {
+          student = {
+            student_id: sbRow.id,
+            roll_number: sbRow.roll_number,
+            name: sbRow.name,
+            section: sbRow.section,
+            eligible: sbRow.eligible !== false,
+            voted: Boolean(sbRow.has_voted),
+            voted_at: sbRow.voted_at,
+          };
+          localStore.importStudents([sbRow]);
+        }
+      } catch (e) {
+        console.warn("[AuthService] Supabase student lookup error:", e.message);
+      }
+    }
+
     if (!student) {
       auditService.log({
         requestId,
@@ -30,34 +60,35 @@ export const authService = {
       throw {
         status: 404,
         code: "STUDENT_NOT_FOUND",
-        message: `Roll number ${cleanRoll} is not found in the official Department of Data Science roster.`,
+        message: `Roll number ${cleanRoll} is not registered in the official Department of Data Science roster.`,
       };
     }
 
-    // 2. Check Section Match if provided
+    // 2. Check Section Match
     if (student.section.toUpperCase() !== cleanSection) {
       throw {
         status: 400,
         code: "SECTION_MISMATCH",
-        message: `Registered section for ${cleanRoll} is Section ${student.section}, but Section ${cleanSection} was selected.`,
+        message: `Roll number ${cleanRoll} belongs to Section ${student.section}, but Section ${cleanSection} was selected.`,
       };
     }
 
-    // 3. Verify Name Fuzzy / Exact Match
+    // 3. Verify Name Strictly
     const normalize = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
     const rosterNorm = normalize(student.name);
     const inputNorm = normalize(cleanName);
 
     const nameMatches =
+      rosterNorm === inputNorm ||
       rosterNorm.includes(inputNorm) ||
       inputNorm.includes(rosterNorm) ||
-      cleanName.split(" ").some((part) => student.name.toLowerCase().includes(part.toLowerCase()));
+      cleanName.split(" ").some((part) => part.length >= 3 && student.name.toLowerCase().includes(part.toLowerCase()));
 
-    if (!nameMatches && config.electionMode === "PRODUCTION") {
+    if (!nameMatches) {
       throw {
         status: 401,
         code: "NAME_MISMATCH",
-        message: "Provided name does not match the departmental records for this roll number.",
+        message: `The entered name does not match the official departmental record for roll number ${cleanRoll}.`,
       };
     }
 

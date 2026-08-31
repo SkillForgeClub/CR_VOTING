@@ -81,20 +81,7 @@ export function Login() {
 
       navigate("/vote");
     } catch (err) {
-      // Fallback: If in relaxed mode or student not in local roster, still allow structured test entry
-      if (err.message && err.message.includes("not found")) {
-        const studentData = {
-          name: cleanName,
-          rollNumber: cleanRoll,
-          section: section.toUpperCase(),
-          verifiedAt: new Date().toISOString(),
-        };
-        authService.setStudentSession("", studentData);
-        sessionStorage.setItem("studentDetails", JSON.stringify(studentData));
-        navigate("/vote");
-      } else {
-        setError(err.message || "Failed to verify credentials with election server.");
-      }
+      setError(err.message || "Roll number not found in the official election roster.");
     } finally {
       setIsLoading(false);
     }
