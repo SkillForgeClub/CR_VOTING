@@ -1005,32 +1005,6 @@ export function Admin() {
                   </div>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "12px", marginBottom: "14px" }}>
-                  <div>
-                    <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, marginBottom: "4px" }}>
-                      Symbol (Emoji)
-                    </label>
-                    <input
-                      type="text"
-                      value={newCandSymbol}
-                      onChange={(e) => setNewCandSymbol(e.target.value)}
-                      style={{ width: "100%", padding: "10px", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border)" }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, marginBottom: "4px" }}>
-                      Symbol Name
-                    </label>
-                    <input
-                      type="text"
-                      value={newCandSymbolName}
-                      onChange={(e) => setNewCandSymbolName(e.target.value)}
-                      placeholder="e.g. Rocket"
-                      style={{ width: "100%", padding: "10px", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border)" }}
-                    />
-                  </div>
-                </div>
-
                 <div style={{ marginBottom: "14px" }}>
                   <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, marginBottom: "4px" }}>
                     Tagline / Campaign Slogan
