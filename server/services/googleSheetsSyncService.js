@@ -103,6 +103,7 @@ export function parseGoogleSheetCsv(csvText) {
 }
 
 export const googleSheetsSyncService = {
+  parseGoogleSheetCsv,
   /**
    * Fetch sheet contents from public URL or Apps Script URL
    */

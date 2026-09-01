@@ -8,7 +8,9 @@ export function Home() {
   const [electionStatus, setElectionStatus] = useState(ElectionState.LIVE);
 
   useEffect(() => {
-    setElectionStatus(electionService.getElectionStatus());
+    electionService.fetchStatus().then((status) => {
+      if (status) setElectionStatus(status);
+    });
   }, []);
 
   return (

@@ -98,7 +98,7 @@ router.post("/roster/sync-preview", requireAdminRole(["SUPER_ADMIN", "ELECTION_A
       return res.status(400).json({ success: false, ...parsedResult });
     }
 
-    const existingStudents = localStore.getAllStudents();
+    const existingStudents = await databaseAdapter.getAllStudents();
     const preview = googleSheetsSyncService.generatePreview(parsedResult, existingStudents);
 
     res.json(preview);
@@ -118,7 +118,7 @@ router.post("/roster/sync-confirm", requireAdminRole(["SUPER_ADMIN", "ELECTION_A
       return res.status(400).json({ success: false, message: "Confirmed student list cannot be empty." });
     }
 
-    const election = electionService.getElection("CR2026");
+    const election = await electionService.getElection("CR2026");
     if (election && election.status === "LIVE" && !["SUPER_ADMIN", "ELECTION_ADMIN"].includes(req.admin.role)) {
       return res.status(403).json({
         success: false,
@@ -127,7 +127,7 @@ router.post("/roster/sync-confirm", requireAdminRole(["SUPER_ADMIN", "ELECTION_A
       });
     }
 
-    const result = studentService.syncRosterFromParsed(studentsList, req.admin.username, req.id);
+    const result = await studentService.syncRosterFromParsed(studentsList, req.admin.username, req.id);
     res.json({
       success: true,
       message: `Roster synchronization complete. ${result.count} students synchronized.`,

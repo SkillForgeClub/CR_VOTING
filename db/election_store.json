@@ -56,10 +56,10 @@
       "email": "24l31a4401@viit.ac.in",
       "section": "A",
       "eligible": true,
-      "voted": true,
-      "voted_at": "2026-09-01T17:06:46.106Z",
-      "created_at": "2026-08-31T23:46:57.618Z",
-      "updated_at": "2026-09-01T17:06:46.106Z"
+      "voted": false,
+      "voted_at": "2026-09-01T17:18:42.796+00:00",
+      "created_at": "2026-08-31T22:55:52.688987+00:00",
+      "updated_at": "2026-09-01T17:28:21.530Z"
     },
     {
       "student_id": "S0010",
@@ -1403,6 +1403,36 @@
       "action": "ADMIN_LOGIN",
       "status": "SUCCESS",
       "metadata": "{\"role\":\"SUPER_ADMIN\",\"name\":\"Chief Returning Officer (HOD / Faculty)\"}"
+    },
+    {
+      "id": "log-1788283603251-png4",
+      "timestamp": "2026-09-01T17:26:43.251Z",
+      "request_id": "auth",
+      "actor_type": "STUDENT",
+      "actor_id": "24L31A4401",
+      "action": "LOGIN_SUCCESS",
+      "status": "SUCCESS",
+      "metadata": "{\"studentId\":\"1e4f9d54-791b-49ea-a2b3-1bd3d2aa92f7\",\"section\":\"A\",\"alreadyVoted\":true}"
+    },
+    {
+      "id": "log-1788283664743-jejl",
+      "timestamp": "2026-09-01T17:27:44.743Z",
+      "request_id": "auth",
+      "actor_type": "STUDENT",
+      "actor_id": "24L31A4401",
+      "action": "LOGIN_SUCCESS",
+      "status": "SUCCESS",
+      "metadata": "{\"studentId\":\"1e4f9d54-791b-49ea-a2b3-1bd3d2aa92f7\",\"section\":\"A\",\"alreadyVoted\":true}"
+    },
+    {
+      "id": "log-1788283701535-j66z",
+      "timestamp": "2026-09-01T17:28:21.535Z",
+      "request_id": "auth",
+      "actor_type": "STUDENT",
+      "actor_id": "24L31A4401",
+      "action": "LOGIN_SUCCESS",
+      "status": "SUCCESS",
+      "metadata": "{\"studentId\":\"1e4f9d54-791b-49ea-a2b3-1bd3d2aa92f7\",\"section\":\"A\",\"alreadyVoted\":true}"
     }
   ],
   "processed_requests": {}

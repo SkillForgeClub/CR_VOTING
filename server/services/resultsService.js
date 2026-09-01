@@ -7,7 +7,7 @@ import config from "../config/index.js";
 
 export const resultsService = {
   async getResults(electionId = "CR2026", userRole = null) {
-    const election = electionService.getElection(electionId);
+    const election = await electionService.getElection(electionId);
     const visibility = election.results_visibility || ResultsVisibility.LIVE;
 
     const isAdmin = userRole === "SUPER_ADMIN" || userRole === "ELECTION_ADMIN" || userRole === "OBSERVER";

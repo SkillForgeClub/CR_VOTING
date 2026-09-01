@@ -51,8 +51,7 @@ export const auditService = {
         actor_user_id: actorId,
         actor_type: actorType,
         action,
-        status,
-        metadata: cleanMeta,
+        metadata: { status, ...cleanMeta },
         ip_address: cleanMeta.ipAddress || null,
       }).then(({ error }) => {
         if (error) console.warn("[AuditService] Supabase audit log write failed:", error.message);
