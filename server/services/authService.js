@@ -33,7 +33,9 @@ export const authService = {
 
         if (sbRow) {
           student = {
+            // Use Supabase UUID directly so castVote RPC is correctly routed
             student_id: sbRow.id,
+            supabase_id: sbRow.id,
             roll_number: sbRow.roll_number,
             name: sbRow.name,
             section: sbRow.section,
@@ -124,8 +126,10 @@ export const authService = {
     }
 
     // 5. Generate Signed Student Session Token (valid for 2 hours)
+    // IMPORTANT: Always embed the Supabase UUID (student.supabase_id) as studentId
+    // so that castVote routes through the Supabase RPC, not the ephemeral local store.
     const sessionPayload = {
-      studentId: student.student_id,
+      studentId: student.supabase_id || student.student_id,
       rollNumber: student.roll_number,
       name: student.name,
       section: student.section,

@@ -109,6 +109,8 @@ export const databaseAdapter = {
     }
 
     // Path B: Authoritative Embedded ACID Store with Mutex Lock
+    // NOTE: This path should only be hit if Supabase is unavailable.
+    // We still do a final Supabase has_voted check here as a safety net.
     const releaseLock = await electionMutex.acquire();
     try {
       // 1. Idempotency check
@@ -129,10 +131,34 @@ export const databaseAdapter = {
       }
 
       // 3. Student lookup
-      const student = localStore.getStudentById(studentId) || localStore.getStudentByRoll(rollNumber || studentId);
+      let student = localStore.getStudentById(studentId) || localStore.getStudentByRoll(rollNumber || studentId);
       if (!student) {
         throw { status: 403, code: "STUDENT_NOT_FOUND", message: "Student record not found in registered roster." };
       }
+
+      // CRITICAL SAFETY NET: If Supabase is reachable, always re-check has_voted from the source of truth
+      // to prevent double voting after server restarts (local store resets but Supabase persists).
+      if (supabaseServer) {
+        try {
+          const resolvedRoll = student.roll_number || rollNumber;
+          const { data: sbCheck } = await supabaseServer
+            .from("students")
+            .select("has_voted, voted_at")
+            .eq("roll_number", resolvedRoll.toUpperCase())
+            .maybeSingle();
+          if (sbCheck && sbCheck.has_voted) {
+            throw {
+              status: 409,
+              code: "ALREADY_VOTED",
+              message: `Roll number ${resolvedRoll} has already cast an official ballot in this election. Duplicate voting is prohibited.`,
+            };
+          }
+        } catch (sbCheckErr) {
+          if (sbCheckErr.code === "ALREADY_VOTED") throw sbCheckErr;
+          console.warn("[DatabaseAdapter] Supabase has_voted safety check failed:", sbCheckErr.message);
+        }
+      }
+
       if (!student.eligible) {
         throw { status: 403, code: "STUDENT_NOT_ELIGIBLE", message: "Student is not marked as eligible to vote." };
       }
@@ -175,6 +201,18 @@ export const databaseAdapter = {
 
       localStore.recordVoteEntry(voteRecord);
       localStore.markStudentVoted(student.student_id);
+
+      // Persist voted status to Supabase immediately, even in local fallback path
+      if (supabaseServer) {
+        supabaseServer
+          .from("students")
+          .update({ has_voted: true, voted_at: now.toISOString(), updated_at: now.toISOString() })
+          .eq("roll_number", student.roll_number.toUpperCase())
+          .then(({ error }) => {
+            if (error) console.warn("[DatabaseAdapter] Failed to sync has_voted to Supabase:", error.message);
+            else console.log("[DatabaseAdapter] Synced has_voted=true to Supabase for:", student.roll_number);
+          });
+      }
 
       const receipt = {
         success: true,
