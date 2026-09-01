@@ -22,8 +22,8 @@ export const authService = {
     // 1. Check Student in Authoritative Local Roster
     let student = studentService.getStudentByRoll(cleanRoll);
 
-    // If not in local store, query cloud Supabase directly
-    if (!student && databaseAdapter.isSupabaseActive() && supabaseServer) {
+    // Always query cloud Supabase directly to get the latest voting status if active
+    if (databaseAdapter.isSupabaseActive() && supabaseServer) {
       try {
         const { data: sbRow } = await supabaseServer
           .from("students")
@@ -41,6 +41,7 @@ export const authService = {
             voted: Boolean(sbRow.has_voted),
             voted_at: sbRow.voted_at,
           };
+          // Update the local store so it stays in sync
           localStore.importStudents([sbRow]);
         }
       } catch (e) {

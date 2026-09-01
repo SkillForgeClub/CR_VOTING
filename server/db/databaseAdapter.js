@@ -85,10 +85,25 @@ export const databaseAdapter = {
           }
 
           if (error) {
-            console.warn("[DatabaseAdapter] Supabase RPC cast_vote returned error, trying local store fallback:", error.message);
+            console.warn("[DatabaseAdapter] Supabase RPC cast_vote returned error:", error.message);
+            // If it's a validation error from our RPC (e.g., ALREADY_VOTED, STUDENT_NOT_ELIGIBLE), throw it
+            // so we don't accidentally bypass it via the local store fallback.
+            if (error.code && error.code.startsWith("P0")) {
+              throw { 
+                status: error.code === "P0012" ? 409 : 403, 
+                code: error.code === "P0012" ? "ALREADY_VOTED" : "SUPABASE_RPC_ERROR", 
+                message: error.message 
+              };
+            }
+            if (error.message && (error.message.includes("ALREADY_VOTED") || error.message.includes("STUDENT_NOT_ELIGIBLE"))) {
+              throw { status: 409, code: "ALREADY_VOTED", message: error.message };
+            }
           }
         }
       } catch (err) {
+        // If we threw a specific business logic error above (like ALREADY_VOTED), rethrow it
+        if (err.status) throw err;
+        
         console.warn("[DatabaseAdapter] Supabase RPC failed, using local authoritative store fallback:", err.message);
       }
     }
