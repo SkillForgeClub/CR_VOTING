@@ -9,7 +9,7 @@
       "start_time": "2026-08-31T22:45:26.733Z",
       "end_time": null,
       "created_at": "2026-08-31T22:45:26.733Z",
-      "updated_at": "2026-08-31T22:46:44.829Z"
+      "updated_at": "2026-08-31T23:46:58.254Z"
     }
   ],
   "students": [
@@ -58,8 +58,8 @@
       "eligible": true,
       "voted": false,
       "voted_at": null,
-      "created_at": "2026-08-31T23:09:22.808Z",
-      "updated_at": "2026-08-31T23:09:23.426Z"
+      "created_at": "2026-08-31T23:46:57.618Z",
+      "updated_at": "2026-08-31T23:46:57.920Z"
     },
     {
       "student_id": "S0010",
@@ -70,8 +70,8 @@
       "eligible": true,
       "voted": false,
       "voted_at": null,
-      "created_at": "2026-08-31T23:09:22.808Z",
-      "updated_at": "2026-08-31T23:09:22.808Z"
+      "created_at": "2026-08-31T23:46:57.618Z",
+      "updated_at": "2026-08-31T23:46:57.618Z"
     },
     {
       "student_id": "S0010",
@@ -82,8 +82,8 @@
       "eligible": true,
       "voted": false,
       "voted_at": null,
-      "created_at": "2026-08-31T23:09:22.808Z",
-      "updated_at": "2026-08-31T23:09:22.808Z"
+      "created_at": "2026-08-31T23:46:57.618Z",
+      "updated_at": "2026-08-31T23:46:57.618Z"
     },
     {
       "student_id": "S0010",
@@ -94,8 +94,8 @@
       "eligible": true,
       "voted": false,
       "voted_at": null,
-      "created_at": "2026-08-31T23:09:22.808Z",
-      "updated_at": "2026-08-31T23:09:22.808Z"
+      "created_at": "2026-08-31T23:46:57.618Z",
+      "updated_at": "2026-08-31T23:46:57.618Z"
     },
     {
       "student_id": "S0010",
@@ -106,8 +106,8 @@
       "eligible": true,
       "voted": false,
       "voted_at": null,
-      "created_at": "2026-08-31T23:09:22.808Z",
-      "updated_at": "2026-08-31T23:09:22.808Z"
+      "created_at": "2026-08-31T23:46:57.618Z",
+      "updated_at": "2026-08-31T23:46:57.618Z"
     },
     {
       "student_id": "S0009",
@@ -136,94 +136,26 @@
       "photo_url": "",
       "manifesto": "Representing Section A with dedication",
       "key_points": [],
-      "active": false,
+      "active": true,
       "created_at": "2026-08-31T23:00:12.156Z",
       "updated_at": "2026-08-31T23:00:12.317Z"
     },
     {
-      "candidate_id": "cand-1788217239360",
+      "candidate_id": "cand-1788219940949",
       "election_id": "CR2026",
-      "name": "Kavya Reddy",
-      "roll_number": "24L31A4410",
+      "name": "Aarav Sharma",
+      "roll_number": "24L31A4499",
       "section": "A",
-      "symbol": "🎯",
-      "symbol_name": "Target Vision",
-      "tagline": "Leadership and Data Science Excellence",
+      "symbol": "🌟",
+      "symbol_name": "Rising Star",
+      "tagline": "Empowering Section A through Innovation",
       "avatar_bg": "linear-gradient(135deg, #1e3a8a, #3b82f6)",
       "photo_url": "",
-      "manifesto": "Representing Section A with dedication",
-      "key_points": [],
-      "active": false,
-      "created_at": "2026-08-31T23:00:39.360Z",
-      "updated_at": "2026-08-31T23:00:39.510Z"
-    },
-    {
-      "candidate_id": "cand-1788217445494",
-      "election_id": "CR2026",
-      "name": "Kavya Reddy",
-      "roll_number": "24L31A4410",
-      "section": "A",
-      "symbol": "🎯",
-      "symbol_name": "Target Vision",
-      "tagline": "Leadership and Data Science Excellence",
-      "avatar_bg": "linear-gradient(135deg, #1e3a8a, #3b82f6)",
-      "photo_url": "",
-      "manifesto": "Representing Section A with dedication",
+      "manifesto": "Dedication, integrity, and peer support.",
       "key_points": [],
       "active": true,
-      "created_at": "2026-08-31T23:04:05.494Z",
-      "updated_at": "2026-08-31T23:04:07.093Z"
-    },
-    {
-      "candidate_id": "cand-1788217550542",
-      "election_id": "CR2026",
-      "name": "Kavya Reddy",
-      "roll_number": "24L31A4410",
-      "section": "A",
-      "symbol": "🎯",
-      "symbol_name": "Target Vision",
-      "tagline": "Leadership and Data Science Excellence",
-      "avatar_bg": "linear-gradient(135deg, #1e3a8a, #3b82f6)",
-      "photo_url": "",
-      "manifesto": "Representing Section A with dedication",
-      "key_points": [],
-      "active": true,
-      "created_at": "2026-08-31T23:05:50.542Z",
-      "updated_at": "2026-08-31T23:05:51.742Z"
-    },
-    {
-      "candidate_id": "cand-1788217640219",
-      "election_id": "CR2026",
-      "name": "Kavya Reddy",
-      "roll_number": "24L31A4410",
-      "section": "A",
-      "symbol": "🎯",
-      "symbol_name": "Target Vision",
-      "tagline": "Leadership and Data Science Excellence",
-      "avatar_bg": "linear-gradient(135deg, #1e3a8a, #3b82f6)",
-      "photo_url": "",
-      "manifesto": "Representing Section A with dedication",
-      "key_points": [],
-      "active": true,
-      "created_at": "2026-08-31T23:07:20.219Z",
-      "updated_at": "2026-08-31T23:07:21.418Z"
-    },
-    {
-      "candidate_id": "cand-1788217759470",
-      "election_id": "CR2026",
-      "name": "Kavya Reddy",
-      "roll_number": "24L31A4410",
-      "section": "A",
-      "symbol": "🎯",
-      "symbol_name": "Target Vision",
-      "tagline": "Leadership and Data Science Excellence",
-      "avatar_bg": "linear-gradient(135deg, #1e3a8a, #3b82f6)",
-      "photo_url": "",
-      "manifesto": "Representing Section A with dedication",
-      "key_points": [],
-      "active": true,
-      "created_at": "2026-08-31T23:09:19.470Z",
-      "updated_at": "2026-08-31T23:09:22.262Z"
+      "created_at": "2026-08-31T23:45:40.949Z",
+      "updated_at": "2026-08-31T23:45:40.949Z"
     }
   ],
   "votes": [],
@@ -1107,6 +1039,316 @@
       "action": "ADMIN_ACTION",
       "status": "SUCCESS",
       "metadata": "{\"action\":\"RESET_TEST_VOTES\"}"
+    },
+    {
+      "id": "log-1788219592591-2zgj",
+      "timestamp": "2026-08-31T23:39:52.591Z",
+      "request_id": "req_8408d0e5d349447f",
+      "actor_type": "STUDENT",
+      "actor_id": "2",
+      "action": "LOGIN_FAILED",
+      "status": "FAILED",
+      "metadata": "{\"reason\":\"NOT_IN_ROSTER\",\"rollNumber\":\"2\",\"providedName\":\"test\"}"
+    },
+    {
+      "id": "log-1788219601089-cz3x",
+      "timestamp": "2026-08-31T23:40:01.089Z",
+      "request_id": "req_1520a27d306fc039",
+      "actor_type": "STUDENT",
+      "actor_id": "24L31A4401",
+      "action": "LOGIN_SUCCESS",
+      "status": "SUCCESS",
+      "metadata": "{\"studentId\":\"S0010\",\"section\":\"A\",\"alreadyVoted\":false}"
+    },
+    {
+      "id": "log-1788219670683-yvwf",
+      "timestamp": "2026-08-31T23:41:10.683Z",
+      "request_id": "req_09c87a4a4f867a2c",
+      "actor_type": "STUDENT",
+      "actor_id": "24L31A4401",
+      "action": "LOGIN_SUCCESS",
+      "status": "SUCCESS",
+      "metadata": "{\"studentId\":\"S0010\",\"section\":\"A\",\"alreadyVoted\":false}"
+    },
+    {
+      "id": "log-1788219833814-ilud",
+      "timestamp": "2026-08-31T23:43:53.814Z",
+      "request_id": "req_8ac8597016f922e5",
+      "actor_type": "STUDENT",
+      "actor_id": "24L31A4401",
+      "action": "LOGIN_SUCCESS",
+      "status": "SUCCESS",
+      "metadata": "{\"studentId\":\"S0010\",\"section\":\"A\",\"alreadyVoted\":false}"
+    },
+    {
+      "id": "log-1788219833839-lobu",
+      "timestamp": "2026-08-31T23:43:53.839Z",
+      "request_id": "req_cc59a6b55fa0862b",
+      "actor_type": "STUDENT",
+      "actor_id": "24L31A4401",
+      "action": "LOGIN_SUCCESS",
+      "status": "SUCCESS",
+      "metadata": "{\"studentId\":\"S0010\",\"section\":\"A\",\"alreadyVoted\":false}"
+    },
+    {
+      "id": "log-1788219833860-xhqe",
+      "timestamp": "2026-08-31T23:43:53.860Z",
+      "request_id": "req_0b530d928e2489b5",
+      "actor_type": "STUDENT",
+      "actor_id": "24L31A4401",
+      "action": "LOGIN_FAILED",
+      "status": "FAILED",
+      "metadata": "{\"reason\":\"NAME_MISMATCH\",\"rollNumber\":\"24L31A4401\",\"providedName\":\"TEST2\",\"expectedName\":\"test1\"}"
+    },
+    {
+      "id": "log-1788219834434-ouup",
+      "timestamp": "2026-08-31T23:43:54.434Z",
+      "request_id": "req_f51e194b633092bf",
+      "actor_type": "STUDENT",
+      "actor_id": "9999",
+      "action": "LOGIN_FAILED",
+      "status": "FAILED",
+      "metadata": "{\"reason\":\"NOT_IN_ROSTER\",\"rollNumber\":\"9999\",\"providedName\":\"TEST\"}"
+    },
+    {
+      "id": "log-1788219940941-lsdi",
+      "timestamp": "2026-08-31T23:45:40.941Z",
+      "request_id": "req_53f7e23dabdd73a6",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ADMIN_LOGIN",
+      "status": "SUCCESS",
+      "metadata": "{\"role\":\"SUPER_ADMIN\",\"name\":\"Chief Returning Officer (HOD / Faculty)\"}"
+    },
+    {
+      "id": "log-1788219940950-8d94",
+      "timestamp": "2026-08-31T23:45:40.950Z",
+      "request_id": "req_404ee1e1839512b5",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "CANDIDATE_CREATED",
+      "status": "SUCCESS",
+      "metadata": "{\"candidateId\":\"cand-1788219940949\",\"name\":\"Aarav Sharma\",\"section\":\"A\"}"
+    },
+    {
+      "id": "log-1788219941724-g7d5",
+      "timestamp": "2026-08-31T23:45:41.724Z",
+      "request_id": "req_00bf706979c119b1",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ROSTER_SYNC_GOOGLE_SHEETS",
+      "status": "SUCCESS",
+      "metadata": "{\"importedCount\":5,\"totalSynced\":5}"
+    },
+    {
+      "id": "log-1788219941736-9cv2",
+      "timestamp": "2026-08-31T23:45:41.736Z",
+      "request_id": "req_7c5c9b091891b1eb",
+      "actor_type": "STUDENT",
+      "actor_id": "24L31A4401",
+      "action": "LOGIN_SUCCESS",
+      "status": "SUCCESS",
+      "metadata": "{\"studentId\":\"S0010\",\"section\":\"A\",\"alreadyVoted\":false}"
+    },
+    {
+      "id": "log-1788219942387-z9dn",
+      "timestamp": "2026-08-31T23:45:42.387Z",
+      "request_id": "req_4d756c7629a129d2",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ELECTION_PAUSED",
+      "status": "SUCCESS",
+      "metadata": "{\"electionId\":\"CR2026\",\"status\":\"PAUSED\"}"
+    },
+    {
+      "id": "log-1788219942393-kgxq",
+      "timestamp": "2026-08-31T23:45:42.393Z",
+      "request_id": "req_8ab131088fe787e6",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ELECTION_RESUMED",
+      "status": "SUCCESS",
+      "metadata": "{\"electionId\":\"CR2026\",\"status\":\"LIVE\"}"
+    },
+    {
+      "id": "log-1788219942541-7739",
+      "timestamp": "2026-08-31T23:45:42.541Z",
+      "request_id": "req_f6d83ced62040250",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ADMIN_ACTION",
+      "status": "SUCCESS",
+      "metadata": "{\"action\":\"RESET_TEST_VOTES\"}"
+    },
+    {
+      "id": "log-1788219970366-1kg5",
+      "timestamp": "2026-08-31T23:46:10.366Z",
+      "request_id": "req_7c68b84a8a9dbb02",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ADMIN_LOGIN",
+      "status": "SUCCESS",
+      "metadata": "{\"role\":\"SUPER_ADMIN\",\"name\":\"Chief Returning Officer (HOD / Faculty)\"}"
+    },
+    {
+      "id": "log-1788219970391-ka3o",
+      "timestamp": "2026-08-31T23:46:10.391Z",
+      "request_id": "req_6f89f3ce7e991fab",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "CANDIDATE_CREATED",
+      "status": "SUCCESS",
+      "metadata": "{\"candidateId\":\"cand-1788219970390\",\"name\":\"Aarav Sharma\",\"section\":\"A\"}"
+    },
+    {
+      "id": "log-1788219971591-fdgv",
+      "timestamp": "2026-08-31T23:46:11.591Z",
+      "request_id": "req_02e6483313d54114",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ROSTER_SYNC_GOOGLE_SHEETS",
+      "status": "SUCCESS",
+      "metadata": "{\"importedCount\":5,\"totalSynced\":5}"
+    },
+    {
+      "id": "log-1788219971611-vj5b",
+      "timestamp": "2026-08-31T23:46:11.611Z",
+      "request_id": "req_22f405a84843c016",
+      "actor_type": "STUDENT",
+      "actor_id": "24L31A4401",
+      "action": "LOGIN_SUCCESS",
+      "status": "SUCCESS",
+      "metadata": "{\"studentId\":\"S0010\",\"section\":\"A\",\"alreadyVoted\":false}"
+    },
+    {
+      "id": "log-1788219972441-1toc",
+      "timestamp": "2026-08-31T23:46:12.441Z",
+      "request_id": "req_18799f570b893f51",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ELECTION_PAUSED",
+      "status": "SUCCESS",
+      "metadata": "{\"electionId\":\"CR2026\",\"status\":\"PAUSED\"}"
+    },
+    {
+      "id": "log-1788219972457-6v35",
+      "timestamp": "2026-08-31T23:46:12.457Z",
+      "request_id": "req_246742f4e15813e6",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ELECTION_RESUMED",
+      "status": "SUCCESS",
+      "metadata": "{\"electionId\":\"CR2026\",\"status\":\"LIVE\"}"
+    },
+    {
+      "id": "log-1788219972622-8m73",
+      "timestamp": "2026-08-31T23:46:12.622Z",
+      "request_id": "req_fd44bb67862e39e6",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ADMIN_ACTION",
+      "status": "SUCCESS",
+      "metadata": "{\"action\":\"RESET_TEST_VOTES\"}"
+    },
+    {
+      "id": "log-1788219991243-lyqe",
+      "timestamp": "2026-08-31T23:46:31.243Z",
+      "request_id": "req_e32107b6f942f9d2",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ADMIN_LOGIN",
+      "status": "SUCCESS",
+      "metadata": "{\"role\":\"SUPER_ADMIN\",\"name\":\"Chief Returning Officer (HOD / Faculty)\"}"
+    },
+    {
+      "id": "log-1788220014681-vfib",
+      "timestamp": "2026-08-31T23:46:54.681Z",
+      "request_id": "req_5705194c4d6ffc50",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ADMIN_LOGIN",
+      "status": "SUCCESS",
+      "metadata": "{\"role\":\"SUPER_ADMIN\",\"name\":\"Chief Returning Officer (HOD / Faculty)\"}"
+    },
+    {
+      "id": "log-1788220014694-ehi0",
+      "timestamp": "2026-08-31T23:46:54.694Z",
+      "request_id": "req_7b3dffb03bd38c8e",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "CANDIDATE_CREATED",
+      "status": "SUCCESS",
+      "metadata": "{\"candidateId\":\"cand-1788220014692\",\"name\":\"Aarav Sharma\",\"section\":\"A\"}"
+    },
+    {
+      "id": "log-1788220017619-a8er",
+      "timestamp": "2026-08-31T23:46:57.619Z",
+      "request_id": "req_65aeb71e594b1d9c",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ROSTER_SYNC_GOOGLE_SHEETS",
+      "status": "SUCCESS",
+      "metadata": "{\"importedCount\":5,\"totalSynced\":5}"
+    },
+    {
+      "id": "log-1788220017634-gfqc",
+      "timestamp": "2026-08-31T23:46:57.634Z",
+      "request_id": "req_d0d30cd84f555fc2",
+      "actor_type": "STUDENT",
+      "actor_id": "24L31A4401",
+      "action": "LOGIN_SUCCESS",
+      "status": "SUCCESS",
+      "metadata": "{\"studentId\":\"S0010\",\"section\":\"A\",\"alreadyVoted\":false}"
+    },
+    {
+      "id": "log-1788220018239-zyi8",
+      "timestamp": "2026-08-31T23:46:58.239Z",
+      "request_id": "req_f16283cfb3572fc8",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ELECTION_PAUSED",
+      "status": "SUCCESS",
+      "metadata": "{\"electionId\":\"CR2026\",\"status\":\"PAUSED\"}"
+    },
+    {
+      "id": "log-1788220018255-w5fq",
+      "timestamp": "2026-08-31T23:46:58.255Z",
+      "request_id": "req_91b8ba8a8e8b41d9",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ELECTION_RESUMED",
+      "status": "SUCCESS",
+      "metadata": "{\"electionId\":\"CR2026\",\"status\":\"LIVE\"}"
+    },
+    {
+      "id": "log-1788220018399-d7n8",
+      "timestamp": "2026-08-31T23:46:58.399Z",
+      "request_id": "req_f4c30e55d32e8708",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ADMIN_ACTION",
+      "status": "SUCCESS",
+      "metadata": "{\"action\":\"RESET_TEST_VOTES\"}"
+    },
+    {
+      "id": "log-1788236565452-io2m",
+      "timestamp": "2026-09-01T04:22:45.452Z",
+      "request_id": "req_9ac89d89576d41ba",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ADMIN_LOGIN",
+      "status": "SUCCESS",
+      "metadata": "{\"role\":\"SUPER_ADMIN\",\"name\":\"Chief Returning Officer (HOD / Faculty)\"}"
+    },
+    {
+      "id": "log-1788236602116-pdg7",
+      "timestamp": "2026-09-01T04:23:22.116Z",
+      "request_id": "req_dd67a0d753dc692c",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ADMIN_LOGIN",
+      "status": "SUCCESS",
+      "metadata": "{\"role\":\"SUPER_ADMIN\",\"name\":\"Chief Returning Officer (HOD / Faculty)\"}"
     }
   ],
   "processed_requests": {}
