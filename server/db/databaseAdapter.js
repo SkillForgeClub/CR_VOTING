@@ -115,6 +115,14 @@ export const databaseAdapter = {
             }).select().single();
             
             if (insertError) {
+              if (insertError.code === "23505") {
+                await supabaseServer.from("students").update({ has_voted: true, voted_at: new Date().toISOString() }).eq("id", targetUuid);
+                throw {
+                  status: 409,
+                  code: "ALREADY_VOTED",
+                  message: `Roll number ${resolvedRoll} has already cast an official ballot in this election. Duplicate voting is prohibited.`,
+                };
+              }
               console.error("[DatabaseAdapter] JS SDK insert failed:", insertError);
               throw { status: 500, code: "SUPABASE_INSERT_FAILED", message: insertError.message };
             }
@@ -144,7 +152,6 @@ export const databaseAdapter = {
               });
             }
             return successData;
-          }
         }
       } catch (err) {
         // If we threw a specific business logic error above, rethrow it
