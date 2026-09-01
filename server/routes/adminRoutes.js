@@ -137,12 +137,16 @@ router.post("/roster/sync-confirm", requireAdminRole(["SUPER_ADMIN", "ELECTION_A
 /**
  * GET /api/v1/admin/candidates
  */
-router.get("/candidates", (req, res) => {
-  const candidates = candidateService.getAllCandidates("CR2026", true);
-  res.json({
-    success: true,
-    candidates,
-  });
+router.get("/candidates", async (req, res, next) => {
+  try {
+    const candidates = await candidateService.getAllCandidates("CR2026", true);
+    res.json({
+      success: true,
+      candidates,
+    });
+  } catch (err) {
+    next(err);
+  }
 });
 
 /**

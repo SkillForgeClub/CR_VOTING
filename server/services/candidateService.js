@@ -4,14 +4,15 @@ import auditService, { AuditActions } from "./auditService.js";
 import gasClient from "../db/gasClient.js";
 
 export const candidateService = {
-  getAllCandidates(electionId = "CR2026", includeInactive = false) {
-    const candidates = localStore.getAllCandidates(electionId);
+  async getAllCandidates(electionId = "CR2026", includeInactive = false) {
+    const candidates = await databaseAdapter.getCandidates(electionId);
     if (includeInactive) return candidates;
     return candidates.filter((c) => c.active !== false);
   },
 
-  getCandidatesBySection(section = "A", electionId = "CR2026") {
-    return localStore.getCandidatesBySection(section, electionId);
+  async getCandidatesBySection(section = "A", electionId = "CR2026") {
+    const candidates = await this.getAllCandidates(electionId, false);
+    return candidates.filter((c) => (c.section || "").toUpperCase() === section.toUpperCase());
   },
 
   getCandidateById(candidateId) {

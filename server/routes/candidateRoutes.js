@@ -8,43 +8,38 @@ const router = express.Router();
  * GET /api/v1/candidates
  * Query params: ?section=A&electionId=CR2026
  */
-router.get("/", apiLimiter, (req, res) => {
-  const { section, electionId } = req.query;
-  const currentElectionId = electionId || "CR2026";
+router.get("/", apiLimiter, async (req, res, next) => {
+  try {
+    const { section, electionId } = req.query;
+    const currentElectionId = electionId || "CR2026";
 
-  let candidates;
-  if (section && section !== "ALL") {
-    candidates = candidateService.getCandidatesBySection(section, currentElectionId);
-  } else {
-    candidates = candidateService.getAllCandidates(currentElectionId, false);
+    let candidates;
+    if (section && section !== "ALL") {
+      candidates = await candidateService.getCandidatesBySection(section, currentElectionId);
+    } else {
+      candidates = await candidateService.getAllCandidates(currentElectionId, false);
+    }
+    res.json({
+      success: true,
+      count: candidates.length,
+      candidates: candidates.map((c) => ({
+        id: c.candidate_id || c.id,
+        candidate_id: c.candidate_id || c.id,
+        election_id: c.election_id,
+        name: c.name,
+        rollNumber: c.rollNumber || c.roll_number,
+        section: c.section,
+        symbol: c.symbol,
+        symbolName: c.symbolName || c.symbol_name,
+        tagline: c.tagline,
+        manifesto: c.manifesto,
+        photo_url: c.photo_url || "",
+        active: c.active,
+      })),
+    });
+  } catch (err) {
+    next(err);
   }
-
-  res.json({
-    success: true,
-    count: candidates.length,
-    candidates: candidates.map((c) => ({
-      id: c.candidate_id,
-      candidate_id: c.candidate_id,
-      election_id: c.election_id,
-      name: c.name,
-      rollNumber: c.roll_number,
-      roll_number: c.roll_number,
-      section: c.section,
-      symbol: c.symbol,
-      symbolName: c.symbol_name,
-      symbol_name: c.symbol_name,
-      tagline: c.tagline,
-      avatarBg: c.avatar_bg,
-      avatar_bg: c.avatar_bg,
-      photoUrl: c.photo_url,
-      photo_url: c.photo_url,
-      manifesto: c.manifesto,
-      keyPoints: c.key_points || [],
-      key_points: c.key_points || [],
-      isActive: c.active,
-      active: c.active,
-    })),
-  });
 });
 
 /**
