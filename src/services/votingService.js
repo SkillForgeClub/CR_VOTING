@@ -25,7 +25,7 @@ export const votingService = {
 
       const data = await res.json();
 
-      if (!res.ok || !data.success) {
+      if (!res.ok || data.success === false) {
         throw new Error(data.message || "Failed to submit ballot.");
       }
 

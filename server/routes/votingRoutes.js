@@ -26,7 +26,10 @@ router.post("/", voteLimiter, requireStudentAuth, validateVoteRequest, async (re
       userAgent: req.get("user-agent"),
     });
 
-    res.json(receipt);
+    res.json({
+      success: true,
+      ...receipt,
+    });
   } catch (err) {
     next(err);
   }

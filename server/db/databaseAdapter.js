@@ -129,10 +129,20 @@ export const databaseAdapter = {
 
             await supabaseServer.from("students").update({ has_voted: true, voted_at: new Date().toISOString() }).eq("id", targetUuid);
             
+            const now = new Date();
             const successData = {
+              success: true,
               voteId: insertData.id,
               voteReference: refId,
-              candidate: { id: candidateId }
+              timestamp: now.toLocaleString("en-US", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "medium" }),
+              isoTimestamp: now.toISOString(),
+              student: {
+                name: localSt?.name || "",
+                rollNumber: resolvedRoll,
+                section: localSt?.section || "A",
+              },
+              candidate: { id: candidateId },
+              message: "Your ballot has been officially recorded and sealed.",
             };
 
             if (localSt) {
