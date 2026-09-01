@@ -220,36 +220,78 @@ export function Admin() {
     });
   }, [votes, selectedSectionFilter, searchTerm]);
 
+  // Mobile-aware tab labels
+  const TABS = [
+    { id: "overview",   icon: "📊", label: "Live Overview & Tally",  short: "Overview" },
+    { id: "candidates", icon: "👥", label: "Candidate Roster",        short: "Candidates" },
+    { id: "audit",      icon: "📋", label: "Voter Audit Register",    short: "Audit" },
+    { id: "settings",   icon: "⚙️", label: "System Integrations",    short: "System" },
+  ];
+
   return (
     <PageContainer>
+      {/* ── Mobile-responsive global styles injected inline ── */}
+      <style>{`
+        @media (max-width: 640px) {
+          .admin-header-title { font-size: 1.05rem !important; }
+          .admin-header-subtitle { display: none; }
+          .admin-tab-label-full { display: none; }
+          .admin-tab-label-short { display: inline; }
+          .admin-tab-bar { position: sticky; bottom: 0; z-index: 50; background: var(--color-surface); border-top: 2px solid var(--color-border); border-bottom: none !important; padding: 6px 0 env(safe-area-inset-bottom,0) 0; margin: 0 -16px; margin-top: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); }
+          .admin-tab-btn { flex: 1; flex-direction: column !important; padding: 8px 4px !important; font-size: 0.72rem !important; gap: 2px !important; border-radius: 8px !important; }
+          .admin-tab-icon { font-size: 1.25rem; display: block; }
+          .admin-status-btns { justify-content: stretch !important; }
+          .admin-status-btns button { flex: 1; min-width: 0; font-size: 0.78rem !important; padding: 8px 6px !important; }
+          .admin-kpi-grid { grid-template-columns: 1fr 1fr !important; }
+          .admin-cand-table thead { display: none; }
+          .admin-cand-table tr { display: block; border: 1px solid var(--color-border); border-radius: 10px; margin-bottom: 10px; padding: 10px; }
+          .admin-cand-table td { display: flex; justify-content: space-between; align-items: center; padding: 5px 0 !important; border: none !important; font-size: 0.83rem; }
+          .admin-cand-table td::before { content: attr(data-label); font-weight: 700; font-size: 0.72rem; color: var(--color-text-muted); text-transform: uppercase; margin-right: 8px; white-space: nowrap; }
+          .admin-results-table thead { display: none; }
+          .admin-results-table tr { display: block; border: 1px solid var(--color-border); border-radius: 10px; margin-bottom: 10px; padding: 10px; }
+          .admin-results-table td { display: flex; justify-content: space-between; align-items: center; padding: 5px 0 !important; border: none !important; font-size: 0.83rem; }
+          .admin-results-table td::before { content: attr(data-label); font-weight: 700; font-size: 0.72rem; color: var(--color-text-muted); text-transform: uppercase; margin-right: 8px; white-space: nowrap; }
+          .admin-audit-table thead { display: none; }
+          .admin-audit-table tr { display: block; border: 1px solid var(--color-border); border-radius: 10px; margin-bottom: 10px; padding: 10px; }
+          .admin-audit-table td { display: flex; justify-content: space-between; align-items: center; padding: 5px 0 !important; border: none !important; font-size: 0.82rem; }
+          .admin-audit-table td::before { content: attr(data-label); font-weight: 700; font-size: 0.72rem; color: var(--color-text-muted); text-transform: uppercase; margin-right: 8px; white-space: nowrap; }
+        }
+        @media (min-width: 641px) {
+          .admin-tab-label-full { display: inline; }
+          .admin-tab-label-short { display: none; }
+          .admin-tab-icon { display: none; }
+        }
+      `}</style>
+
       <div style={{ maxWidth: "1140px", margin: "0 auto" }}>
         {/* Top Officer Header */}
         <div
           className="inst-card"
           style={{
-            marginBottom: "24px",
+            marginBottom: "20px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             flexWrap: "wrap",
-            gap: "16px",
+            gap: "12px",
             background: "linear-gradient(135deg, #172554 0%, #1e3a8a 100%)",
             color: "#ffffff",
+            padding: "clamp(14px,3vw,22px)",
           }}
         >
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <span style={{ fontSize: "1.4rem" }}>🛡️</span>
-              <h2 style={{ fontSize: "1.35rem", fontWeight: 800, color: "#ffffff" }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span style={{ fontSize: "1.3rem" }}>🛡️</span>
+              <h2 className="admin-header-title" style={{ fontSize: "1.35rem", fontWeight: 800, color: "#ffffff", lineHeight: 1.2 }}>
                 Election Control &amp; Scrutiny Console
               </h2>
             </div>
-            <p style={{ fontSize: "0.85rem", opacity: 0.85, marginTop: "4px" }}>
+            <p className="admin-header-subtitle" style={{ fontSize: "0.82rem", opacity: 0.85, marginTop: "4px" }}>
               {BRAND.electionName} • {BRAND.department}
             </p>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
             <button
               type="button"
               onClick={refreshData}
@@ -257,11 +299,12 @@ export function Admin() {
                 background: "rgba(255, 255, 255, 0.15)",
                 color: "#ffffff",
                 border: "1px solid rgba(255, 255, 255, 0.3)",
-                padding: "8px 14px",
+                padding: "8px 12px",
                 borderRadius: "var(--radius-md)",
                 cursor: "pointer",
                 fontWeight: 600,
-                fontSize: "0.85rem",
+                fontSize: "0.82rem",
+                whiteSpace: "nowrap",
               }}
             >
               🔄 Refresh Data
@@ -273,11 +316,12 @@ export function Admin() {
                 background: "#b91c1c",
                 color: "#ffffff",
                 border: "none",
-                padding: "8px 14px",
+                padding: "8px 12px",
                 borderRadius: "var(--radius-md)",
                 cursor: "pointer",
                 fontWeight: 600,
-                fontSize: "0.85rem",
+                fontSize: "0.82rem",
+                whiteSpace: "nowrap",
               }}
             >
               Sign Out
@@ -289,32 +333,28 @@ export function Admin() {
         <div
           className="inst-card"
           style={{
-            marginBottom: "24px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "16px",
+            marginBottom: "20px",
             borderLeft: "4px solid var(--color-primary)",
+            padding: "clamp(12px,3vw,20px)",
           }}
         >
-          <div>
-            <span style={{ fontSize: "0.78rem", fontWeight: 700, textTransform: "uppercase", color: "var(--color-text-muted)" }}>
+          <div style={{ marginBottom: "12px" }}>
+            <span style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", color: "var(--color-text-muted)", letterSpacing: "0.05em" }}>
               Official Election Status
             </span>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "4px" }}>
-              <span style={{ fontSize: "1.1rem", fontWeight: 800 }}>
+            <div style={{ marginTop: "4px" }}>
+              <span style={{ fontSize: "1.05rem", fontWeight: 800 }}>
                 Current State: <span style={{ color: "var(--color-primary)" }}>{electionStatus}</span>
               </span>
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+          <div className="admin-status-btns" style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
             <button
               type="button"
               onClick={() => handleStatusChange(ElectionState.LIVE)}
               style={{
-                padding: "8px 16px",
+                padding: "9px 14px",
                 borderRadius: "var(--radius-md)",
                 fontWeight: 700,
                 fontSize: "0.85rem",
@@ -322,6 +362,7 @@ export function Admin() {
                 border: "1px solid var(--color-live)",
                 background: electionStatus === ElectionState.LIVE ? "var(--color-live)" : "var(--color-live-bg)",
                 color: electionStatus === ElectionState.LIVE ? "#ffffff" : "var(--color-live)",
+                whiteSpace: "nowrap",
               }}
             >
               ● Resume / Live
@@ -331,7 +372,7 @@ export function Admin() {
               type="button"
               onClick={() => handleStatusChange(ElectionState.PAUSED)}
               style={{
-                padding: "8px 16px",
+                padding: "9px 14px",
                 borderRadius: "var(--radius-md)",
                 fontWeight: 700,
                 fontSize: "0.85rem",
@@ -339,6 +380,7 @@ export function Admin() {
                 border: "1px solid var(--color-warning)",
                 background: electionStatus === ElectionState.PAUSED ? "var(--color-warning)" : "var(--color-warning-bg)",
                 color: electionStatus === ElectionState.PAUSED ? "#ffffff" : "var(--color-warning)",
+                whiteSpace: "nowrap",
               }}
             >
               ⏸️ Pause Voting
@@ -348,7 +390,7 @@ export function Admin() {
               type="button"
               onClick={() => handleStatusChange(ElectionState.CLOSED)}
               style={{
-                padding: "8px 16px",
+                padding: "9px 14px",
                 borderRadius: "var(--radius-md)",
                 fontWeight: 700,
                 fontSize: "0.85rem",
@@ -356,6 +398,7 @@ export function Admin() {
                 border: "1px solid var(--color-danger)",
                 background: electionStatus === ElectionState.CLOSED ? "var(--color-danger)" : "var(--color-danger-bg)",
                 color: electionStatus === ElectionState.CLOSED ? "#ffffff" : "var(--color-danger)",
+                whiteSpace: "nowrap",
               }}
             >
               🔒 Close Election
@@ -380,33 +423,32 @@ export function Admin() {
           </div>
         )}
 
-        {/* Tab Navigation */}
+        {/* Tab Navigation — sticky bottom on mobile, inline on desktop */}
         <div
+          className="admin-tab-bar"
           style={{
             display: "flex",
-            gap: "8px",
+            gap: "4px",
             marginBottom: "20px",
             borderBottom: "2px solid var(--color-border)",
             paddingBottom: "8px",
-            overflowX: "auto",
           }}
         >
-          {[
-            { id: "overview", label: "📊 Live Overview & Tally" },
-            { id: "candidates", label: "👥 Candidate Roster" },
-            { id: "audit", label: "📋 Voter Audit Register" },
-            { id: "settings", label: "⚙️ System Integrations" },
-          ].map((tab) => (
+          {TABS.map((tab) => (
             <button
               key={tab.id}
               type="button"
+              className="admin-tab-btn"
               onClick={() => setActiveTab(tab.id)}
               style={{
-                padding: "10px 18px",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "10px 16px",
                 borderRadius: "var(--radius-md)",
                 border: "none",
                 fontWeight: 700,
-                fontSize: "0.9rem",
+                fontSize: "0.88rem",
                 cursor: "pointer",
                 background: activeTab === tab.id ? "var(--color-primary)" : "transparent",
                 color: activeTab === tab.id ? "#ffffff" : "var(--color-text-secondary)",
@@ -414,7 +456,9 @@ export function Admin() {
                 whiteSpace: "nowrap",
               }}
             >
-              {tab.label}
+              <span className="admin-tab-icon">{tab.icon}</span>
+              <span className="admin-tab-label-full">{tab.icon} {tab.label}</span>
+              <span className="admin-tab-label-short">{tab.short}</span>
             </button>
           ))}
         </div>
@@ -424,11 +468,12 @@ export function Admin() {
           <div>
             {/* KPI Summary Cards */}
             <div
+              className="admin-kpi-grid"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                gap: "18px",
-                marginBottom: "28px",
+                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                gap: "14px",
+                marginBottom: "24px",
               }}
             >
               <div className="inst-card">
@@ -521,7 +566,7 @@ export function Admin() {
               </div>
 
               <div style={{ overflowX: "auto" }}>
-                <table className="audit-table">
+                <table className="audit-table admin-results-table">
                   <thead>
                     <tr>
                       <th>Rank</th>
@@ -535,23 +580,23 @@ export function Admin() {
                   <tbody>
                     {metrics.candidateTally.map((cand, idx) => (
                       <tr key={cand.candidate_id || cand.id || idx}>
-                        <td>
+                        <td data-label="Rank">
                           <strong>#{idx + 1}</strong>
                         </td>
-                        <td>
+                        <td data-label="Candidate">
                           <div style={{ fontWeight: 700 }}>{cand.name}</div>
                           <div style={{ fontSize: "0.78rem", color: "var(--color-text-muted)" }}>{cand.tagline || cand.symbol_name}</div>
                         </td>
-                        <td style={{ fontFamily: "var(--font-mono)" }}>{cand.roll_number || cand.rollNumber}</td>
-                        <td>
+                        <td data-label="Roll No" style={{ fontFamily: "var(--font-mono)" }}>{cand.roll_number || cand.rollNumber}</td>
+                        <td data-label="Section">
                           <span style={{ fontWeight: 700, color: "var(--color-primary)" }}>Sec {cand.section}</span>
                         </td>
-                        <td>
+                        <td data-label="Votes">
                           <strong style={{ fontSize: "1.1rem", color: "var(--color-primary)" }}>
                             {cand.votesReceived}
                           </strong>
                         </td>
-                        <td>
+                        <td data-label="Vote Share">
                           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                             <span>{cand.percentageOfTotal}%</span>
                             <div style={{ width: "60px", height: "6px", background: "var(--color-border)", borderRadius: "var(--radius-full)", overflow: "hidden" }}>
@@ -592,7 +637,7 @@ export function Admin() {
             </div>
 
             <div style={{ overflowX: "auto" }}>
-              <table className="audit-table">
+              <table className="audit-table admin-cand-table">
                 <thead>
                   <tr>
                     <th>Candidate</th>
@@ -605,13 +650,13 @@ export function Admin() {
                 <tbody>
                   {candidates.map((c) => (
                     <tr key={c.id}>
-                      <td>
+                      <td data-label="Candidate">
                         <div style={{ fontWeight: 700 }}>{c.name}</div>
                         <div style={{ fontSize: "0.78rem", color: "var(--color-text-muted)" }}>{c.tagline}</div>
                       </td>
-                      <td style={{ fontFamily: "var(--font-mono)" }}>{c.rollNumber}</td>
-                      <td>Section {c.section}</td>
-                      <td>
+                      <td data-label="Roll No" style={{ fontFamily: "var(--font-mono)" }}>{c.rollNumber}</td>
+                      <td data-label="Section">Section {c.section}</td>
+                      <td data-label="Status">
                         {c.isActive !== false ? (
                           <span style={{ color: "var(--color-success)", fontWeight: 700, fontSize: "0.8rem" }}>
                             ● Active
@@ -622,18 +667,19 @@ export function Admin() {
                           </span>
                         )}
                       </td>
-                      <td>
-                        <div style={{ display: "flex", gap: "8px" }}>
+                      <td data-label="Actions">
+                        <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", justifyContent: "flex-end" }}>
                           <button
                             type="button"
                             onClick={() => handleToggleCandidate(c.id || c.candidate_id)}
                             style={{
-                              padding: "4px 10px",
+                              padding: "5px 10px",
                               borderRadius: "var(--radius-sm)",
                               border: "1px solid var(--color-border)",
                               background: "var(--color-surface)",
                               fontSize: "0.78rem",
                               cursor: "pointer",
+                              whiteSpace: "nowrap",
                             }}
                           >
                             {c.active !== false && c.isActive !== false ? "Deactivate" : "Activate"}
@@ -642,13 +688,14 @@ export function Admin() {
                             type="button"
                             onClick={() => handleDeleteCandidate(c.id || c.candidate_id, c.name)}
                             style={{
-                              padding: "4px 10px",
+                              padding: "5px 10px",
                               borderRadius: "var(--radius-sm)",
                               border: "1px solid var(--color-danger-border)",
                               background: "var(--color-danger-bg)",
                               color: "var(--color-danger)",
                               fontSize: "0.78rem",
                               cursor: "pointer",
+                              whiteSpace: "nowrap",
                             }}
                           >
                             Delete
@@ -724,7 +771,7 @@ export function Admin() {
             </div>
 
             <div style={{ overflowX: "auto" }}>
-              <table className="audit-table">
+              <table className="audit-table admin-audit-table">
                 <thead>
                   <tr>
                     <th>Reference ID</th>
@@ -738,22 +785,22 @@ export function Admin() {
                 <tbody>
                   {filteredVotes.map((v, i) => (
                     <tr key={i}>
-                      <td style={{ fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--color-primary)" }}>
+                      <td data-label="Ref ID" style={{ fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--color-primary)" }}>
                         {v.refId || `CR26-DS-${i + 100}`}
                       </td>
-                      <td style={{ fontSize: "0.82rem", color: "var(--color-text-muted)" }}>
+                      <td data-label="Timestamp" style={{ fontSize: "0.82rem", color: "var(--color-text-muted)" }}>
                         {v.timestamp || "Official"}
                       </td>
-                      <td style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}>
+                      <td data-label="Roll No" style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}>
                         {v.rollNumber}
                       </td>
-                      <td>{v.name}</td>
-                      <td>
+                      <td data-label="Name">{v.name}</td>
+                      <td data-label="Section">
                         <span style={{ fontWeight: 700, color: "var(--color-primary)" }}>
                           Sec {v.section || "A"}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Voted For">
                         <span style={{ fontWeight: 600 }}>{v.candidateName}</span>
                       </td>
                     </tr>
