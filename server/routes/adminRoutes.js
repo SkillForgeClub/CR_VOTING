@@ -20,10 +20,10 @@ router.use(requireAdminAuth);
 /**
  * GET /api/v1/admin/dashboard
  */
-router.get("/dashboard", (req, res) => {
-  const metrics = resultsService.getDashboardMetrics("CR2026", req.admin.role);
+router.get("/dashboard", async (req, res) => {
+  const metrics = await resultsService.getDashboardMetrics("CR2026", req.admin.role);
   const election = electionService.getElection("CR2026");
-  const rosterSummary = studentService.getRosterSummary();
+  const rosterSummary = await studentService.getRosterSummary();
 
   res.json({
     success: true,
@@ -37,8 +37,8 @@ router.get("/dashboard", (req, res) => {
 /**
  * GET /api/v1/admin/results
  */
-router.get("/results", (req, res) => {
-  const results = resultsService.getResults("CR2026", req.admin.role);
+router.get("/results", async (req, res) => {
+  const results = await resultsService.getResults("CR2026", req.admin.role);
   res.json({
     success: true,
     ...results,

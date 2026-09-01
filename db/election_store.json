@@ -1349,6 +1349,46 @@
       "action": "ADMIN_LOGIN",
       "status": "SUCCESS",
       "metadata": "{\"role\":\"SUPER_ADMIN\",\"name\":\"Chief Returning Officer (HOD / Faculty)\"}"
+    },
+    {
+      "id": "log-1788237539746-agw1",
+      "timestamp": "2026-09-01T04:38:59.746Z",
+      "request_id": "req_4f0ae98d2eb0d2b7",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ADMIN_LOGIN",
+      "status": "SUCCESS",
+      "metadata": "{\"role\":\"SUPER_ADMIN\",\"name\":\"Chief Returning Officer (HOD / Faculty)\"}"
+    },
+    {
+      "id": "log-1788237591473-8b2t",
+      "timestamp": "2026-09-01T04:39:51.473Z",
+      "request_id": "req_77e159a394d87af7",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ADMIN_LOGIN",
+      "status": "SUCCESS",
+      "metadata": "{\"role\":\"SUPER_ADMIN\",\"name\":\"Chief Returning Officer (HOD / Faculty)\"}"
+    },
+    {
+      "id": "log-1788237687473-47sj",
+      "timestamp": "2026-09-01T04:41:27.473Z",
+      "request_id": "req_685c303a578ee4c3",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ADMIN_LOGIN",
+      "status": "SUCCESS",
+      "metadata": "{\"role\":\"SUPER_ADMIN\",\"name\":\"Chief Returning Officer (HOD / Faculty)\"}"
+    },
+    {
+      "id": "log-1788237752986-kqtd",
+      "timestamp": "2026-09-01T04:42:32.986Z",
+      "request_id": "req_592295a5b7bf6e3e",
+      "actor_type": "ADMIN",
+      "actor_id": "admin",
+      "action": "ADMIN_LOGIN",
+      "status": "SUCCESS",
+      "metadata": "{\"role\":\"SUPER_ADMIN\",\"name\":\"Chief Returning Officer (HOD / Faculty)\"}"
     }
   ],
   "processed_requests": {}

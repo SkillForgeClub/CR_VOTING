@@ -216,6 +216,38 @@ export const databaseAdapter = {
   },
 
   /**
+   * Fetch All Registered Students
+   */
+  async getAllStudents() {
+    if (this.isSupabaseActive()) {
+      try {
+        const { data, error } = await supabaseServer
+          .from("students")
+          .select("*")
+          .order("roll_number", { ascending: true });
+
+        if (!error && data && data.length > 0) {
+          return data.map((s) => ({
+            student_id: s.id,
+            id: s.id,
+            roll_number: s.roll_number,
+            name: s.name,
+            section: s.section,
+            email: s.email,
+            eligible: s.eligible !== undefined ? s.eligible : (s.is_eligible !== undefined ? s.is_eligible : true),
+            voted: s.has_voted !== undefined ? s.has_voted : (s.voted || false),
+            voted_at: s.voted_at,
+          }));
+        }
+      } catch (e) {
+        console.warn("[DatabaseAdapter] Supabase getAllStudents error:", e.message);
+      }
+    }
+
+    return localStore.getAllStudents();
+  },
+
+  /**
    * Fetch Student By Roll Number
    */
   async getStudentByRoll(rollNumber) {

@@ -33,8 +33,8 @@ router.get("/config", apiLimiter, (req, res) => {
  * GET /api/v1/election/results
  * Public / Student results endpoint (governed by results_visibility)
  */
-router.get("/results", apiLimiter, (req, res) => {
-  const results = resultsService.getResults("CR2026", null);
+router.get("/results", apiLimiter, async (req, res) => {
+  const results = await resultsService.getResults("CR2026", null);
   res.json({
     success: true,
     ...results,

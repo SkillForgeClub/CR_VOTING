@@ -27,8 +27,8 @@ export const studentService = {
     return { eligible: true, student };
   },
 
-  getRosterSummary() {
-    const students = localStore.getAllStudents();
+  async getRosterSummary() {
+    const students = await databaseAdapter.getAllStudents();
     const total = students.length;
     const eligible = students.filter((s) => s.eligible).length;
     const voted = students.filter((s) => s.voted).length;

@@ -1,10 +1,11 @@
 import localStore from "../db/localStore.js";
+import databaseAdapter from "../db/databaseAdapter.js";
 import candidateService from "./candidateService.js";
 import electionService, { ResultsVisibility } from "./electionService.js";
 import config from "../config/index.js";
 
 export const resultsService = {
-  getResults(electionId = "CR2026", userRole = null) {
+  async getResults(electionId = "CR2026", userRole = null) {
     const election = electionService.getElection(electionId);
     const visibility = election.results_visibility || ResultsVisibility.LIVE;
 
@@ -27,8 +28,10 @@ export const resultsService = {
       };
     }
 
-    const allStudents = localStore.getAllStudents();
-    const rawCandidates = localStore.getAllCandidates(electionId);
+    const [allStudents, rawCandidates] = await Promise.all([
+      databaseAdapter.getAllStudents(),
+      databaseAdapter.getCandidates(electionId),
+    ]);
     
     // Deduplicate candidates by roll_number / id, keeping only active candidates
     const candidateMap = new Map();
@@ -53,7 +56,7 @@ export const resultsService = {
     const sectionStats = sections.map((sec) => {
       const secStudents = allStudents.filter((s) => (s.section || "A").toUpperCase() === sec && s.eligible);
       const secVotes = votes.filter((v) => (v.section || "A").toUpperCase() === sec);
-      const capacity = secStudents.length || 60;
+      const capacity = secStudents.length;
       const count = secVotes.length;
       const pct = capacity > 0 ? ((count / capacity) * 100).toFixed(1) : "0.0";
       return {
@@ -66,7 +69,7 @@ export const resultsService = {
 
     // Candidate Tally
     const candidateTally = allCandidates.map((cand) => {
-      const candVotes = votes.filter((v) => v.candidate_id === cand.candidate_id);
+      const candVotes = votes.filter((v) => v.candidate_id === (cand.candidate_id || cand.id));
       const voteCount = candVotes.length;
       const pctOfTotal = totalVotes > 0 ? ((voteCount / totalVotes) * 100).toFixed(1) : "0.0";
 
@@ -75,14 +78,14 @@ export const resultsService = {
       const pctOfSection = sectionTotalVotes > 0 ? ((voteCount / sectionTotalVotes) * 100).toFixed(1) : "0.0";
 
       return {
-        candidate_id: cand.candidate_id,
+        candidate_id: cand.candidate_id || cand.id,
         name: cand.name,
-        roll_number: cand.roll_number,
+        roll_number: cand.roll_number || cand.rollNumber,
         section: cand.section,
         symbol: cand.symbol,
-        symbol_name: cand.symbol_name,
-        avatar_bg: cand.avatar_bg,
-        photo_url: cand.photo_url,
+        symbol_name: cand.symbol_name || cand.symbolName,
+        avatar_bg: cand.avatar_bg || "linear-gradient(135deg, #1e3a8a, #3b82f6)",
+        photo_url: cand.photo_url || "",
         active: cand.active,
         votesReceived: voteCount,
         percentageOfTotal: Number(pctOfTotal),
@@ -107,8 +110,8 @@ export const resultsService = {
     };
   },
 
-  getDashboardMetrics(electionId = "CR2026", userRole = "SUPER_ADMIN") {
-    const results = this.getResults(electionId, userRole);
+  async getDashboardMetrics(electionId = "CR2026", userRole = "SUPER_ADMIN") {
+    const results = await this.getResults(electionId, userRole);
     const recentVotes = localStore
       .getAllVotes(electionId)
       .slice(-15)
