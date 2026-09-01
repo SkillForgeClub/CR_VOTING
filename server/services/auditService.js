@@ -1,4 +1,5 @@
 import localStore from "../db/localStore.js";
+import supabaseServer from "../db/supabaseClient.js";
 import gasClient from "../db/gasClient.js";
 
 export const AuditActions = {
@@ -25,7 +26,7 @@ export const AuditActions = {
 
 export const auditService = {
   log({ requestId, actorType = "STUDENT", actorId = "anonymous", action, status = "SUCCESS", metadata = {} }) {
-    // Sanitization: Ensure no sensitive keys exist in metadata
+    // Sanitize sensitive keys from metadata
     const cleanMeta = { ...metadata };
     delete cleanMeta.password;
     delete cleanMeta.passcode;
@@ -33,24 +34,72 @@ export const auditService = {
     delete cleanMeta.secret;
     delete cleanMeta.otp;
 
-    const entry = localStore.addAuditLog({
+    const entry = {
       request_id: requestId,
       actor_type: actorType,
       actor_id: actorId,
       action,
       status,
       metadata: cleanMeta,
-    });
+      timestamp: new Date().toISOString(),
+    };
 
-    // Fire-and-forget sync to Google Apps Script if configured
-    if (gasClient.isConfigured()) {
-      gasClient.execute("RECORD_AUDIT_LOG", entry).catch(() => {});
+    // Primary: Write to Supabase audit_logs table (fire-and-forget — don't block voting)
+    if (supabaseServer) {
+      supabaseServer.from("audit_logs").insert({
+        request_id: requestId,
+        actor_user_id: actorId,
+        actor_type: actorType,
+        action,
+        status,
+        metadata: cleanMeta,
+        ip_address: cleanMeta.ipAddress || null,
+      }).then(({ error }) => {
+        if (error) console.warn("[AuditService] Supabase audit log write failed:", error.message);
+      }).catch((e) => console.warn("[AuditService] Supabase audit log write exception:", e.message));
     }
 
-    return entry;
+    // Secondary: local store as backup
+    const localEntry = localStore.addAuditLog(entry);
+
+    // Tertiary: GAS sync
+    if (gasClient.isConfigured()) {
+      gasClient.execute("RECORD_AUDIT_LOG", localEntry || entry).catch(() => {});
+    }
+
+    return localEntry || entry;
   },
 
-  getLogs(limit = 100, action = null) {
+  async getLogs(limit = 100, action = null) {
+    if (supabaseServer) {
+      try {
+        let query = supabaseServer
+          .from("audit_logs")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(limit);
+
+        if (action) {
+          query = query.eq("action", action);
+        }
+
+        const { data, error } = await query;
+        if (!error && data) {
+          return data.map((log) => ({
+            log_id: log.id,
+            request_id: log.request_id,
+            actor_type: log.actor_type,
+            actor_id: log.actor_user_id,
+            action: log.action,
+            status: log.status,
+            metadata: log.metadata || {},
+            timestamp: log.created_at,
+          }));
+        }
+      } catch (e) {
+        console.warn("[AuditService] Supabase getLogs failed:", e.message);
+      }
+    }
     return localStore.getAuditLogs(limit, action);
   },
 };

@@ -1,9 +1,14 @@
 import localStore from "../db/localStore.js";
 import databaseAdapter from "../db/databaseAdapter.js";
+import supabaseServer from "../db/supabaseClient.js";
 import auditService, { AuditActions } from "./auditService.js";
 import gasClient from "../db/gasClient.js";
 
 export const candidateService = {
+  // ---------------------------------------------------------------------------
+  // READ: via databaseAdapter (already Supabase-backed)
+  // ---------------------------------------------------------------------------
+
   async getAllCandidates(electionId = "CR2026", includeInactive = false) {
     const candidates = await databaseAdapter.getCandidates(electionId);
     if (includeInactive) return candidates;
@@ -15,16 +20,47 @@ export const candidateService = {
     return candidates.filter((c) => (c.section || "").toUpperCase() === section.toUpperCase());
   },
 
-  getCandidateById(candidateId) {
-    return localStore.getCandidateById(candidateId);
+  // getCandidateById: Supabase first, local store fallback
+  async getCandidateById(candidateId) {
+    if (!candidateId) return null;
+    if (supabaseServer) {
+      try {
+        const { data, error } = await supabaseServer
+          .from("candidates")
+          .select("*")
+          .eq("id", candidateId)
+          .maybeSingle();
+        if (!error && data) {
+          return {
+            id: data.id,
+            candidate_id: data.id,
+            election_id: data.election_id,
+            name: data.name,
+            roll_number: data.roll_number,
+            rollNumber: data.roll_number,
+            section: data.section,
+            symbol: data.symbol,
+            symbol_name: data.symbol_name,
+            symbolName: data.symbol_name,
+            tagline: data.tagline,
+            manifesto: data.manifesto,
+            photo_url: data.photo_url || "",
+            active: data.active !== false,
+          };
+        }
+      } catch (e) {
+        console.warn("[CandidateService] Supabase getCandidateById failed:", e.message);
+      }
+    }
+    return localStore.getCandidateById(candidateId) || null;
   },
 
-  validateCandidateForVote(candidateId, studentSection, electionId = "CR2026") {
-    const cand = this.getCandidateById(candidateId);
+  async validateCandidateForVote(candidateId, studentSection, electionId = "CR2026") {
+    const cand = await this.getCandidateById(candidateId);
     if (!cand) {
       return { valid: false, code: "INVALID_CANDIDATE", message: "Candidate does not exist." };
     }
-    if (cand.election_id !== electionId) {
+    if (cand.election_id && cand.election_id !== electionId) {
       return { valid: false, code: "INVALID_ELECTION", message: "Candidate is not part of the active election." };
     }
     if (cand.active === false) {
@@ -40,6 +76,10 @@ export const candidateService = {
     return { valid: true, candidate: cand };
   },
 
+  // ---------------------------------------------------------------------------
+  // CREATE: Supabase-first
+  // ---------------------------------------------------------------------------
+
   async createCandidate(candidateData, adminUser = "admin", requestId = "cand-create") {
     if (!candidateData.name || !candidateData.name.trim()) {
       throw new Error("Candidate name is required.");
@@ -47,12 +87,12 @@ export const candidateService = {
 
     const cleanRoll = (candidateData.roll_number || candidateData.rollNumber || "").trim().toUpperCase();
     const electionId = candidateData.election_id || "CR2026";
-    
+
     // Check if candidate with same roll number already exists
     if (cleanRoll) {
       const allCands = await databaseAdapter.getCandidates(electionId);
       const existing = allCands.find((c) => (c.roll_number || c.rollNumber || "").toUpperCase() === cleanRoll);
-      
+
       if (existing) {
         return this.updateCandidate(
           existing.candidate_id || existing.id,
@@ -71,19 +111,56 @@ export const candidateService = {
       }
     }
 
-    const created = localStore.addCandidate({
+    const candidateId = `cand-${Date.now()}`;
+    const newCandidate = {
+      id: candidateId,
+      election_id: electionId,
       name: candidateData.name.trim(),
       roll_number: cleanRoll,
       section: (candidateData.section || "A").toUpperCase(),
-      election_id: electionId,
       symbol: candidateData.symbol || "🚀",
       symbol_name: candidateData.symbol_name || candidateData.symbolName || "Visionary",
       tagline: candidateData.tagline || "",
-      avatar_bg: candidateData.avatar_bg || candidateData.avatarBg || "linear-gradient(135deg, #1e3a8a, #3b82f6)",
       photo_url: candidateData.photo_url || candidateData.photoUrl || "",
       manifesto: candidateData.manifesto || "",
-      key_points: candidateData.key_points || candidateData.keyPoints || [],
       active: true,
+    };
+
+    // Primary: Insert into Supabase
+    if (supabaseServer) {
+      try {
+        const { data, error } = await supabaseServer
+          .from("candidates")
+          .insert(newCandidate)
+          .select()
+          .single();
+        if (error) console.warn("[CandidateService] Supabase insert error:", error.message);
+        else if (data) {
+          // Return normalized shape with candidate_id
+          const created = { ...data, candidate_id: data.id, rollNumber: data.roll_number, symbolName: data.symbol_name };
+
+          auditService.log({
+            requestId,
+            actorType: "ADMIN",
+            actorId: adminUser,
+            action: AuditActions.CANDIDATE_CREATED,
+            status: "SUCCESS",
+            metadata: { candidateId: data.id, name: data.name, section: data.section },
+          });
+
+          if (gasClient.isConfigured()) gasClient.syncCandidateToGas(created).catch(() => {});
+          return created;
+        }
+      } catch (e) {
+        console.warn("[CandidateService] Supabase insert exception:", e.message);
+      }
+    }
+
+    // Fallback: local store
+    const created = localStore.addCandidate({
+      ...newCandidate,
+      avatar_bg: candidateData.avatar_bg || candidateData.avatarBg || "linear-gradient(135deg, #1e3a8a, #3b82f6)",
+      key_points: candidateData.key_points || candidateData.keyPoints || [],
     });
 
     auditService.log({
@@ -95,95 +172,120 @@ export const candidateService = {
       metadata: { candidateId: created.candidate_id, name: created.name, section: created.section },
     });
 
-    if (gasClient.isConfigured()) {
-      gasClient.syncCandidateToGas(created).catch(() => {});
-    }
-
-    try {
-      await databaseAdapter.syncCandidateToSupabase(created);
-    } catch (e) {
-      console.warn("[CandidateService] Supabase sync warning:", e.message);
-    }
-
+    if (gasClient.isConfigured()) gasClient.syncCandidateToGas(created).catch(() => {});
     return created;
   },
 
+  // ---------------------------------------------------------------------------
+  // UPDATE: Supabase-first
+  // ---------------------------------------------------------------------------
+
   async updateCandidate(candidateId, updates, adminUser = "admin", requestId = "cand-update") {
-    const updated = localStore.updateCandidate(candidateId, updates);
-    if (!updated) {
-      throw new Error(`Candidate with ID ${candidateId} not found.`);
+    if (supabaseServer) {
+      try {
+        const supabaseUpdates = {};
+        if (updates.name !== undefined) supabaseUpdates.name = updates.name;
+        if (updates.section !== undefined) supabaseUpdates.section = updates.section;
+        if (updates.symbol !== undefined) supabaseUpdates.symbol = updates.symbol;
+        if (updates.symbol_name !== undefined) supabaseUpdates.symbol_name = updates.symbol_name;
+        if (updates.symbolName !== undefined) supabaseUpdates.symbol_name = updates.symbolName;
+        if (updates.tagline !== undefined) supabaseUpdates.tagline = updates.tagline;
+        if (updates.manifesto !== undefined) supabaseUpdates.manifesto = updates.manifesto;
+        if (updates.active !== undefined) supabaseUpdates.active = updates.active;
+        if (updates.photo_url !== undefined) supabaseUpdates.photo_url = updates.photo_url;
+        supabaseUpdates.updated_at = new Date().toISOString();
+
+        const { data, error } = await supabaseServer
+          .from("candidates")
+          .update(supabaseUpdates)
+          .eq("id", candidateId)
+          .select()
+          .single();
+
+        if (error) console.warn("[CandidateService] Supabase update error:", error.message);
+        else if (data) {
+          const updated = { ...data, candidate_id: data.id, rollNumber: data.roll_number, symbolName: data.symbol_name };
+
+          auditService.log({
+            requestId, actorType: "ADMIN", actorId: adminUser,
+            action: AuditActions.CANDIDATE_UPDATED, status: "SUCCESS",
+            metadata: { candidateId, updates: Object.keys(updates) },
+          });
+
+          if (gasClient.isConfigured()) gasClient.syncCandidateToGas(updated).catch(() => {});
+          return updated;
+        }
+      } catch (e) {
+        console.warn("[CandidateService] Supabase update exception:", e.message);
+      }
     }
 
+    // Fallback: local store
+    const updated = localStore.updateCandidate(candidateId, updates);
+    if (!updated) throw new Error(`Candidate with ID ${candidateId} not found.`);
+
     auditService.log({
-      requestId,
-      actorType: "ADMIN",
-      actorId: adminUser,
-      action: AuditActions.CANDIDATE_UPDATED,
-      status: "SUCCESS",
+      requestId, actorType: "ADMIN", actorId: adminUser,
+      action: AuditActions.CANDIDATE_UPDATED, status: "SUCCESS",
       metadata: { candidateId, updates: Object.keys(updates) },
     });
 
-    if (gasClient.isConfigured()) {
-      gasClient.syncCandidateToGas(updated).catch(() => {});
-    }
-
-    try {
-      await databaseAdapter.syncCandidateToSupabase(updated);
-    } catch (e) {
-      console.warn("[CandidateService] Supabase sync warning:", e.message);
-    }
-
+    if (gasClient.isConfigured()) gasClient.syncCandidateToGas(updated).catch(() => {});
     return updated;
   },
 
+  // ---------------------------------------------------------------------------
+  // TOGGLE ACTIVE: Supabase-first
+  // ---------------------------------------------------------------------------
+
   async toggleCandidateActive(candidateId, adminUser = "admin", requestId = "cand-toggle") {
-    const cand = this.getCandidateById(candidateId);
+    const cand = await this.getCandidateById(candidateId);
     if (!cand) throw new Error("Candidate not found.");
 
     const newActiveState = !cand.active;
-    const updated = localStore.updateCandidate(candidateId, { active: newActiveState });
-
-    auditService.log({
-      requestId,
-      actorType: "ADMIN",
-      actorId: adminUser,
-      action: newActiveState ? AuditActions.CANDIDATE_UPDATED : AuditActions.CANDIDATE_DEACTIVATED,
-      status: "SUCCESS",
-      metadata: { candidateId, active: newActiveState },
-    });
-
-    if (updated) {
-      try {
-        await databaseAdapter.syncCandidateToSupabase(updated);
-      } catch (e) {
-        console.warn("[CandidateService] Supabase sync warning:", e.message);
-      }
-    }
-
-    return updated;
+    return this.updateCandidate(candidateId, { active: newActiveState }, adminUser, requestId);
   },
 
+  // ---------------------------------------------------------------------------
+  // DELETE: Supabase-first
+  // ---------------------------------------------------------------------------
+
   async deleteCandidate(candidateId, adminUser = "admin", requestId = "cand-delete") {
-    const cand = this.getCandidateById(candidateId);
-    const success = localStore.deleteCandidate(candidateId);
+    const cand = await this.getCandidateById(candidateId);
 
-    if (success && cand) {
-      auditService.log({
-        requestId,
-        actorType: "ADMIN",
-        actorId: adminUser,
-        action: AuditActions.ADMIN_ACTION,
-        status: "SUCCESS",
-        metadata: { action: "DELETE_CANDIDATE", candidateId, name: cand.name },
-      });
-
+    if (supabaseServer) {
       try {
-        await databaseAdapter.deleteCandidateFromSupabase(candidateId);
+        const { error } = await supabaseServer
+          .from("candidates")
+          .delete()
+          .eq("id", candidateId);
+
+        if (error) console.warn("[CandidateService] Supabase delete error:", error.message);
+        else {
+          if (cand) {
+            auditService.log({
+              requestId, actorType: "ADMIN", actorId: adminUser,
+              action: AuditActions.ADMIN_ACTION, status: "SUCCESS",
+              metadata: { action: "DELETE_CANDIDATE", candidateId, name: cand.name },
+            });
+          }
+          localStore.deleteCandidate(candidateId);
+          return true;
+        }
       } catch (e) {
-        console.warn("[CandidateService] Supabase delete warning:", e.message);
+        console.warn("[CandidateService] Supabase delete exception:", e.message);
       }
     }
 
+    // Fallback: local store
+    const success = localStore.deleteCandidate(candidateId);
+    if (success && cand) {
+      auditService.log({
+        requestId, actorType: "ADMIN", actorId: adminUser,
+        action: AuditActions.ADMIN_ACTION, status: "SUCCESS",
+        metadata: { action: "DELETE_CANDIDATE", candidateId, name: cand.name },
+      });
+    }
     return success;
   },
 };

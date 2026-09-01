@@ -165,19 +165,41 @@ export const databaseAdapter = {
         return cached.result;
       }
 
-      // 2. Election status
-      const election = localStore.getElection(electionId);
-      if (!election || election.status !== "LIVE") {
-        const state = election ? election.status : "CLOSED";
+      // 2. Election status — check Supabase first so PAUSED state survives restarts
+      let electionStatus = "LIVE";
+      if (supabaseServer) {
+        try {
+          const { data: elRow } = await supabaseServer.from("elections").select("status").eq("id", electionId).maybeSingle();
+          if (elRow) electionStatus = elRow.status;
+        } catch (e) {
+          // Fallback to local store
+          const localEl = localStore.getElection(electionId);
+          electionStatus = localEl?.status || "LIVE";
+        }
+      } else {
+        const localEl = localStore.getElection(electionId);
+        electionStatus = localEl?.status || "LIVE";
+      }
+
+      if (electionStatus !== "LIVE") {
         throw {
           status: 403,
-          code: `ELECTION_${state}`,
-          message: state === "PAUSED" ? "Election voting is temporarily paused." : "Election is not live for voting.",
+          code: `ELECTION_${electionStatus}`,
+          message: electionStatus === "PAUSED" ? "Election voting is temporarily paused." : "Election is not live for voting.",
         };
       }
 
-      // 3. Student lookup
+      // 3. Student lookup — try Supabase first for authoritative has_voted status
       let student = localStore.getStudentById(studentId) || localStore.getStudentByRoll(rollNumber || studentId);
+
+      if (!student && supabaseServer && rollNumber) {
+        try {
+          const { data: sbSt } = await supabaseServer.from("students").select("*").eq("roll_number", rollNumber.toUpperCase()).maybeSingle();
+          if (sbSt) {
+            student = { student_id: sbSt.id, id: sbSt.id, roll_number: sbSt.roll_number, name: sbSt.name, section: sbSt.section, eligible: sbSt.eligible !== false, voted: Boolean(sbSt.has_voted), voted_at: sbSt.voted_at };
+          }
+        } catch (e) { console.warn("[DatabaseAdapter] Supabase student lookup in fallback path failed:", e.message); }
+      }
       if (!student) {
         throw { status: 403, code: "STUDENT_NOT_FOUND", message: "Student record not found in registered roster." };
       }
@@ -216,8 +238,15 @@ export const databaseAdapter = {
         };
       }
 
-      // 4. Candidate lookup
-      const candidate = localStore.getCandidateById(candidateId);
+      // 4. Candidate lookup — Supabase first so no stale local data
+      let candidate = null;
+      if (supabaseServer) {
+        try {
+          const { data: sbCand } = await supabaseServer.from("candidates").select("*").eq("id", candidateId).maybeSingle();
+          if (sbCand) candidate = { candidate_id: sbCand.id, id: sbCand.id, name: sbCand.name, section: sbCand.section, active: sbCand.active !== false, election_id: sbCand.election_id };
+        } catch (e) { console.warn("[DatabaseAdapter] Supabase candidate lookup in fallback path failed:", e.message); }
+      }
+      if (!candidate) candidate = localStore.getCandidateById(candidateId);
       if (!candidate || !candidate.active) {
         throw { status: 400, code: "INVALID_CANDIDATE", message: "Selected candidate is invalid or inactive." };
       }

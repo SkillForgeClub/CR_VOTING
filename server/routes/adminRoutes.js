@@ -48,25 +48,29 @@ router.get("/results", async (req, res) => {
 /**
  * GET /api/v1/admin/students
  */
-router.get("/students", (req, res) => {
-  const { query, section, page, limit } = req.query;
-  const result = studentService.searchStudents({
-    query: query || "",
-    section: section || "ALL",
-    page: parseInt(page || "1", 10),
-    limit: parseInt(limit || "50", 10),
-  });
-  res.json({ success: true, ...result });
+router.get("/students", async (req, res, next) => {
+  try {
+    const { query, section, page, limit } = req.query;
+    const result = await studentService.searchStudents({
+      query: query || "",
+      section: section || "ALL",
+      page: parseInt(page || "1", 10),
+      limit: parseInt(limit || "50", 10),
+    });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    next(err);
+  }
 });
 
 /**
  * POST /api/v1/admin/students/import
  * Requires SUPER_ADMIN or ELECTION_ADMIN
  */
-router.post("/students/import", requireAdminRole(["SUPER_ADMIN", "ELECTION_ADMIN"]), (req, res, next) => {
+router.post("/students/import", requireAdminRole(["SUPER_ADMIN", "ELECTION_ADMIN"]), async (req, res, next) => {
   try {
     const { csvData } = req.body;
-    const result = studentService.importCsvRoster(csvData, req.admin.username, req.id);
+    const result = await studentService.importCsvRoster(csvData, req.admin.username, req.id);
     res.json(result);
   } catch (err) {
     next(err);
@@ -200,42 +204,50 @@ router.delete("/candidates/:id", requireAdminRole(["SUPER_ADMIN"]), async (req, 
 /**
  * POST /api/v1/admin/election/start
  */
-router.post("/election/start", requireAdminRole(["SUPER_ADMIN", "ELECTION_ADMIN"]), (req, res) => {
-  const election = electionService.startElection("CR2026", req.admin.username, req.id);
-  res.json({ success: true, status: election.status, election });
+router.post("/election/start", requireAdminRole(["SUPER_ADMIN", "ELECTION_ADMIN"]), async (req, res, next) => {
+  try {
+    const election = await electionService.startElection("CR2026", req.admin.username, req.id);
+    res.json({ success: true, status: election.status, election });
+  } catch (err) { next(err); }
 });
 
 /**
  * POST /api/v1/admin/election/pause
  */
-router.post("/election/pause", requireAdminRole(["SUPER_ADMIN", "ELECTION_ADMIN"]), (req, res) => {
-  const election = electionService.pauseElection("CR2026", req.admin.username, req.id);
-  res.json({ success: true, status: election.status, election });
+router.post("/election/pause", requireAdminRole(["SUPER_ADMIN", "ELECTION_ADMIN"]), async (req, res, next) => {
+  try {
+    const election = await electionService.pauseElection("CR2026", req.admin.username, req.id);
+    res.json({ success: true, status: election.status, election });
+  } catch (err) { next(err); }
 });
 
 /**
  * POST /api/v1/admin/election/resume
  */
-router.post("/election/resume", requireAdminRole(["SUPER_ADMIN", "ELECTION_ADMIN"]), (req, res) => {
-  const election = electionService.resumeElection("CR2026", req.admin.username, req.id);
-  res.json({ success: true, status: election.status, election });
+router.post("/election/resume", requireAdminRole(["SUPER_ADMIN", "ELECTION_ADMIN"]), async (req, res, next) => {
+  try {
+    const election = await electionService.resumeElection("CR2026", req.admin.username, req.id);
+    res.json({ success: true, status: election.status, election });
+  } catch (err) { next(err); }
 });
 
 /**
  * POST /api/v1/admin/election/close
  */
-router.post("/election/close", requireAdminRole(["SUPER_ADMIN"]), (req, res) => {
-  const election = electionService.closeElection("CR2026", req.admin.username, req.id);
-  res.json({ success: true, status: election.status, election });
+router.post("/election/close", requireAdminRole(["SUPER_ADMIN"]), async (req, res, next) => {
+  try {
+    const election = await electionService.closeElection("CR2026", req.admin.username, req.id);
+    res.json({ success: true, status: election.status, election });
+  } catch (err) { next(err); }
 });
 
 /**
  * POST /api/v1/admin/election/visibility
  */
-router.post("/election/visibility", requireAdminRole(["SUPER_ADMIN"]), (req, res, next) => {
+router.post("/election/visibility", requireAdminRole(["SUPER_ADMIN"]), async (req, res, next) => {
   try {
     const { visibility } = req.body;
-    const election = electionService.updateResultsVisibility(visibility, "CR2026", req.admin.username, req.id);
+    const election = await electionService.updateResultsVisibility(visibility, "CR2026", req.admin.username, req.id);
     res.json({ success: true, results_visibility: election.results_visibility, election });
   } catch (err) {
     next(err);
@@ -245,15 +257,17 @@ router.post("/election/visibility", requireAdminRole(["SUPER_ADMIN"]), (req, res
 /**
  * GET /api/v1/admin/audit-logs
  */
-router.get("/audit-logs", (req, res) => {
-  const limit = parseInt(req.query.limit || "100", 10);
-  const action = req.query.action || null;
-  const logs = auditService.getLogs(limit, action);
-  res.json({
-    success: true,
-    count: logs.length,
-    logs,
-  });
+router.get("/audit-logs", async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit || "100", 10);
+    const action = req.query.action || null;
+    const logs = await auditService.getLogs(limit, action);
+    res.json({
+      success: true,
+      count: logs.length,
+      logs,
+    });
+  } catch (err) { next(err); }
 });
 
 /**
@@ -287,25 +301,59 @@ router.get("/database-status", (req, res) => {
 
 /**
  * GET /api/v1/admin/export/csv
- * Export official ballots to CSV format
+ * Export official ballots to CSV format — sourced from Supabase
  */
-router.get("/export/csv", (req, res) => {
-  const votes = localStore.getAllVotes("CR2026");
-  const headers = ["Reference ID", "Timestamp", "Roll Number", "Student Name", "Section", "Candidate Voted", "Candidate ID"];
-  const rows = votes.map((v) => [
-    `"${v.ref_id || ""}"`,
-    `"${v.timestamp || ""}"`,
-    `"${v.roll_number || ""}"`,
-    `"${v.student_name || ""}"`,
-    `"${v.section || ""}"`,
-    `"${v.candidate_name || ""}"`,
-    `"${v.candidate_id || ""}"`,
-  ]);
+router.get("/export/csv", async (req, res, next) => {
+  try {
+    // Fetch votes from Supabase with student and candidate names
+    let votes = [];
+    if (databaseAdapter.isSupabaseActive()) {
+      const supabaseServer = (await import("../db/supabaseClient.js")).default;
+      const { data: sbVotes } = await supabaseServer
+        .from("votes")
+        .select("vote_reference, created_at, section, student_id, candidate_id")
+        .eq("election_id", "CR2026")
+        .order("created_at", { ascending: true });
 
-  const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-  res.setHeader("Content-Type", "text/csv");
-  res.setHeader("Content-Disposition", `attachment; filename="VIIT_CR_Election_Ballots_${new Date().toISOString().slice(0, 10)}.csv"`);
-  res.send(csvContent);
+      if (sbVotes && sbVotes.length > 0) {
+        const studentIds = [...new Set(sbVotes.map((v) => v.student_id))];
+        const candidateIds = [...new Set(sbVotes.map((v) => v.candidate_id))];
+        const [{ data: stuRows }, { data: candRows }] = await Promise.all([
+          supabaseServer.from("students").select("id, name, roll_number").in("id", studentIds),
+          supabaseServer.from("candidates").select("id, name").in("id", candidateIds),
+        ]);
+        const stuMap = Object.fromEntries((stuRows || []).map((s) => [s.id, s]));
+        const candMap = Object.fromEntries((candRows || []).map((c) => [c.id, c]));
+        votes = sbVotes.map((v) => ({
+          ref_id: v.vote_reference,
+          timestamp: v.created_at,
+          roll_number: stuMap[v.student_id]?.roll_number || "—",
+          student_name: stuMap[v.student_id]?.name || "Unknown",
+          section: v.section,
+          candidate_name: candMap[v.candidate_id]?.name || "Unknown",
+          candidate_id: v.candidate_id,
+        }));
+      }
+    } else {
+      votes = localStore.getAllVotes("CR2026");
+    }
+
+    const headers = ["Reference ID", "Timestamp", "Roll Number", "Student Name", "Section", "Candidate Voted", "Candidate ID"];
+    const rows = votes.map((v) => [
+      `"${v.ref_id || ""}"`,
+      `"${v.timestamp || ""}"`,
+      `"${v.roll_number || ""}"`,
+      `"${v.student_name || ""}"`,
+      `"${v.section || ""}"`,
+      `"${v.candidate_name || ""}"`,
+      `"${v.candidate_id || ""}"`,
+    ]);
+
+    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", `attachment; filename="VIIT_CR_Election_Ballots_${new Date().toISOString().slice(0, 10)}.csv"`);
+    res.send(csvContent);
+  } catch (err) { next(err); }
 });
 
 export default router;
