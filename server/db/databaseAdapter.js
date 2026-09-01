@@ -99,12 +99,58 @@ export const databaseAdapter = {
               throw { status: 409, code: "ALREADY_VOTED", message: error.message };
             }
           }
+            // If it's a Postgres error (like 42883 gen_random_bytes missing), bypass the broken RPC
+            // and perform the insert directly via JS SDK.
+            console.warn("[DatabaseAdapter] RPC broken, falling back to JS SDK direct insert...");
+            
+            const refId = `CR26-DS${(localSt?.section || "A").toUpperCase()}-${Math.floor(100000 + Math.random() * 900000)}`;
+            
+            const { data: insertData, error: insertError } = await supabaseServer.from("votes").insert({
+              election_id: electionId,
+              student_id: targetUuid,
+              candidate_id: candidateId,
+              section: localSt?.section || "A",
+              vote_reference: refId,
+              request_id: requestId,
+            }).select().single();
+            
+            if (insertError) {
+              console.error("[DatabaseAdapter] JS SDK insert failed:", insertError);
+              throw { status: 500, code: "SUPABASE_INSERT_FAILED", message: insertError.message };
+            }
+
+            await supabaseServer.from("students").update({ has_voted: true, voted_at: new Date().toISOString() }).eq("id", targetUuid);
+            
+            const successData = {
+              voteId: insertData.id,
+              voteReference: refId,
+              candidate: { id: candidateId }
+            };
+
+            if (localSt) {
+              localStore.markStudentVoted(localSt.student_id);
+              localStore.recordVoteEntry({
+                vote_id: insertData.id,
+                election_id: electionId,
+                student_id: localSt.student_id,
+                candidate_id: candidateId,
+                candidate_name: "", // handled by resultsService join later
+                roll_number: localSt.roll_number,
+                student_name: localSt.name,
+                section: localSt.section,
+                timestamp: new Date().toISOString(),
+                request_id: requestId,
+                ref_id: refId,
+              });
+            }
+            return successData;
+          }
         }
       } catch (err) {
-        // If we threw a specific business logic error above (like ALREADY_VOTED), rethrow it
+        // If we threw a specific business logic error above, rethrow it
         if (err.status) throw err;
         
-        console.warn("[DatabaseAdapter] Supabase RPC failed, using local authoritative store fallback:", err.message);
+        console.warn("[DatabaseAdapter] Supabase direct insert failed, falling back to local store:", err.message);
       }
     }
 
