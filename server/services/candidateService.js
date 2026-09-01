@@ -44,11 +44,38 @@ export const candidateService = {
       throw new Error("Candidate name is required.");
     }
 
+    const cleanRoll = (candidateData.roll_number || candidateData.rollNumber || "").trim().toUpperCase();
+    const electionId = candidateData.election_id || "CR2026";
+    
+    // Check if candidate with same roll number already exists
+    if (cleanRoll) {
+      const existing = localStore
+        .getAllCandidates(electionId)
+        .find((c) => (c.roll_number || "").toUpperCase() === cleanRoll);
+      
+      if (existing) {
+        return this.updateCandidate(
+          existing.candidate_id,
+          {
+            name: candidateData.name.trim(),
+            section: (candidateData.section || existing.section).toUpperCase(),
+            symbol: candidateData.symbol || existing.symbol,
+            symbol_name: candidateData.symbol_name || candidateData.symbolName || existing.symbol_name,
+            tagline: candidateData.tagline || existing.tagline,
+            manifesto: candidateData.manifesto || existing.manifesto,
+            active: true,
+          },
+          adminUser,
+          requestId
+        );
+      }
+    }
+
     const created = localStore.addCandidate({
       name: candidateData.name.trim(),
-      roll_number: candidateData.roll_number || candidateData.rollNumber,
+      roll_number: cleanRoll,
       section: (candidateData.section || "A").toUpperCase(),
-      election_id: candidateData.election_id || "CR2026",
+      election_id: electionId,
       symbol: candidateData.symbol || "🚀",
       symbol_name: candidateData.symbol_name || candidateData.symbolName || "Visionary",
       tagline: candidateData.tagline || "",

@@ -28,7 +28,19 @@ export const resultsService = {
     }
 
     const allStudents = localStore.getAllStudents();
-    const allCandidates = localStore.getAllCandidates(electionId);
+    const rawCandidates = localStore.getAllCandidates(electionId);
+    
+    // Deduplicate candidates by roll_number / id, keeping only active candidates
+    const candidateMap = new Map();
+    for (const cand of rawCandidates) {
+      if (cand.active === false) continue;
+      const key = (cand.roll_number || cand.name).toUpperCase();
+      if (!candidateMap.has(key)) {
+        candidateMap.set(key, cand);
+      }
+    }
+    const allCandidates = Array.from(candidateMap.values());
+
     const votes = localStore.getAllVotes(electionId);
 
     const totalEligible = allStudents.filter((s) => s.eligible).length;
