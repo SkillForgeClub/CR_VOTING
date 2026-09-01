@@ -33,6 +33,26 @@ export function Voting() {
       return;
     }
 
+    // -----------------------------------------------------------------------
+    // CRITICAL: Always verify has_voted from server (Supabase) on page load.
+    // The JWT session token embeds `voted: false` at login time.
+    // After voting, refreshing the page must still block re-voting.
+    // -----------------------------------------------------------------------
+    const token = authService.getStudentToken();
+    fetch("/api/v1/auth/student/session", {
+      headers: { Authorization: token ? `Bearer ${token}` : "" },
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success && data.student?.voted) {
+          // Student has already voted — redirect to success page
+          navigate("/vote-success");
+        }
+      })
+      .catch(() => {
+        // Network error — fall through and let the server block the actual vote submission
+      });
+
     setStudent(activeStudent);
     const sec = (activeStudent.section || "A").toUpperCase();
     setActiveSection(sec);
@@ -50,6 +70,7 @@ export function Voting() {
       } catch (e) {}
     }
   }, [navigate]);
+
 
   const handleSelectCandidate = (candidate) => {
     setSelectedCandidate(candidate);

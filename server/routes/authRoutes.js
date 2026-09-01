@@ -28,25 +28,29 @@ router.post("/student/login", authLimiter, async (req, res, next) => {
 
 /**
  * GET /api/v1/auth/student/session
+ * Returns current student status, including live has_voted from Supabase
  */
-router.get("/student/session", requireStudentAuth, (req, res) => {
-  const student = studentService.getStudentById(req.student.studentId);
-  if (!student) {
-    return res.status(404).json({ success: false, code: "STUDENT_NOT_FOUND", message: "Student record missing." });
-  }
+router.get("/student/session", requireStudentAuth, async (req, res, next) => {
+  try {
+    // Use rollNumber from JWT (authoritative) and fetch from Supabase for live has_voted status
+    const student = await studentService.getStudentByRoll(req.student.rollNumber);
+    if (!student) {
+      return res.status(404).json({ success: false, code: "STUDENT_NOT_FOUND", message: "Student record missing." });
+    }
 
-  res.json({
-    success: true,
-    student: {
-      studentId: student.student_id,
-      rollNumber: student.roll_number,
-      name: student.name,
-      section: student.section,
-      eligible: student.eligible,
-      voted: student.voted,
-      votedAt: student.voted_at,
-    },
-  });
+    res.json({
+      success: true,
+      student: {
+        studentId: student.student_id || student.id,
+        rollNumber: student.roll_number,
+        name: student.name,
+        section: student.section,
+        eligible: student.eligible,
+        voted: Boolean(student.voted || student.has_voted),
+        votedAt: student.voted_at,
+      },
+    });
+  } catch (err) { next(err); }
 });
 
 /**
