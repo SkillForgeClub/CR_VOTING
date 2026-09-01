@@ -49,13 +49,12 @@ export const candidateService = {
     
     // Check if candidate with same roll number already exists
     if (cleanRoll) {
-      const existing = localStore
-        .getAllCandidates(electionId)
-        .find((c) => (c.roll_number || "").toUpperCase() === cleanRoll);
+      const allCands = await databaseAdapter.getCandidates(electionId);
+      const existing = allCands.find((c) => (c.roll_number || c.rollNumber || "").toUpperCase() === cleanRoll);
       
       if (existing) {
         return this.updateCandidate(
-          existing.candidate_id,
+          existing.candidate_id || existing.id,
           {
             name: candidateData.name.trim(),
             section: (candidateData.section || existing.section).toUpperCase(),
