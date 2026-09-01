@@ -17,7 +17,7 @@ export const votingService = {
    * @param {string} [params.userAgent] - Request User Agent
    * @returns {Promise<Object>} Safe ballot receipt
    */
-  async castVote({ studentId, candidateId, electionId = "CR2026", requestId, ipAddress, userAgent }) {
+  async castVote({ studentId, rollNumber, candidateId, electionId = "CR2026", requestId, ipAddress, userAgent }) {
     if (!studentId) {
       throw { status: 401, code: "AUTH_REQUIRED", message: "Authentication required to cast ballot." };
     }
@@ -31,6 +31,7 @@ export const votingService = {
     // Execute atomic vote transaction through Database Adapter (Supabase PostgreSQL RPC or ACID Store)
     const receipt = await databaseAdapter.castVote({
       studentId,
+      rollNumber,
       candidateId,
       electionId,
       requestId,
