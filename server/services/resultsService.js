@@ -102,7 +102,7 @@ export const resultsService = {
       const pctOfTotal = totalVotes > 0 ? ((voteCount / totalVotes) * 100).toFixed(1) : "0.0";
 
       // Calculate percentage within candidate's own section
-      const sectionTotalVotes = votes.filter((v) => (v.section || "A").toUpperCase() === cand.section.toUpperCase()).length;
+      const sectionTotalVotes = votes.filter((v) => (v.section || "A").toUpperCase() === (cand.section || "A").toUpperCase()).length;
       const pctOfSection = sectionTotalVotes > 0 ? ((voteCount / sectionTotalVotes) * 100).toFixed(1) : "0.0";
 
       return {

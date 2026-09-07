@@ -238,7 +238,7 @@ class LocalStore {
     for (const item of studentList) {
       if (!item.roll_number || !item.name) continue;
       const cleanRoll = item.roll_number.trim().toUpperCase();
-      const existingIdx = this.data.students.findIndex((s) => s.roll_number.toUpperCase() === cleanRoll);
+      const existingIdx = this.data.students.findIndex((s) => (s.roll_number || "").toUpperCase() === cleanRoll);
       const record = {
         student_id: item.student_id || `S${String(this.data.students.length + 1).padStart(4, "0")}`,
         roll_number: cleanRoll,
@@ -271,11 +271,11 @@ class LocalStore {
 
   getCandidatesBySection(section = "A", electionId = "CR2026") {
     this.init();
-    const cleanSec = section.trim().toUpperCase();
+    const cleanSec = (section || "A").trim().toUpperCase();
     return this.data.candidates.filter(
       (c) =>
         (!electionId || c.election_id === electionId) &&
-        c.section.toUpperCase() === cleanSec &&
+        (c.section || "A").toUpperCase() === cleanSec &&
         c.active !== false
     );
   }

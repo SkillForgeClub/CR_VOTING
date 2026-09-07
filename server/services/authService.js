@@ -68,11 +68,12 @@ export const authService = {
     }
 
     // 2. Check Section Match
-    if (student.section.toUpperCase() !== cleanSection) {
+    const studentSec = (student.section || "A").trim().toUpperCase();
+    if (studentSec !== cleanSection) {
       throw {
         status: 400,
         code: "SECTION_MISMATCH",
-        message: `Roll number ${cleanRoll} belongs to Section ${student.section}, but Section ${cleanSection} was selected.`,
+        message: `Roll number ${cleanRoll} belongs to Section ${student.section || cleanSection}, but Section ${cleanSection} was selected.`,
       };
     }
 

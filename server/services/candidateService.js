@@ -66,11 +66,11 @@ export const candidateService = {
     if (cand.active === false) {
       return { valid: false, code: "INACTIVE_CANDIDATE", message: "Candidate is currently inactive or disqualified." };
     }
-    if (cand.section.toUpperCase() !== studentSection.toUpperCase()) {
+    if ((cand.section || "A").toUpperCase() !== (studentSection || "A").toUpperCase()) {
       return {
         valid: false,
         code: "SECTION_MISMATCH",
-        message: `Voter section (${studentSection}) does not match candidate section (${cand.section}).`,
+        message: `Voter section (${studentSection || "A"}) does not match candidate section (${cand.section || "A"}).`,
       };
     }
     return { valid: true, candidate: cand };

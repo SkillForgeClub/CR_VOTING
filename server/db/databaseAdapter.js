@@ -267,8 +267,8 @@ export const databaseAdapter = {
       if (!candidate || !candidate.active) {
         throw { status: 400, code: "INVALID_CANDIDATE", message: "Selected candidate is invalid or inactive." };
       }
-      if (candidate.section && candidate.section.toUpperCase() !== student.section.toUpperCase()) {
-        throw { status: 400, code: "SECTION_MISMATCH", message: `Student from section ${student.section} cannot vote for candidate in section ${candidate.section}.` };
+      if (candidate.section && (candidate.section || "A").toUpperCase() !== (student.section || "A").toUpperCase()) {
+        throw { status: 400, code: "SECTION_MISMATCH", message: `Student from section ${student.section || "A"} cannot vote for candidate in section ${candidate.section || "A"}.` };
       }
 
       // 5. Generate Reference & Record
