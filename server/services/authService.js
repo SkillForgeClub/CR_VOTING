@@ -73,7 +73,7 @@ export const authService = {
       throw {
         status: 400,
         code: "SECTION_MISMATCH",
-        message: `Roll number ${cleanRoll} belongs to Section ${student.section || cleanSection}, but Section ${cleanSection} was selected.`,
+        message: `Roll number ${cleanRoll} belongs to Section ${studentSec}, but Section ${cleanSection} was selected.`,
       };
     }
 
