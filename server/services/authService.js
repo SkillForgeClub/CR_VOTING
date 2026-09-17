@@ -68,7 +68,18 @@ export const authService = {
     }
 
     // 2. Check Section Match
-    const studentSec = (student.section || "A").trim().toUpperCase();
+    let studentSec = (student.section || "A").trim().toUpperCase();
+    
+    // Safety net: Infer section from standard VIIT roll number (e.g. 25L31A44C2 -> C)
+    // 9th character (index 8) usually indicates the section (A, B, C, D)
+    if ((!student.section || studentSec === "A") && cleanRoll.length === 10) {
+      const inferredSec = cleanRoll.charAt(8).toUpperCase();
+      if (['A', 'B', 'C', 'D'].includes(inferredSec)) {
+        studentSec = inferredSec;
+        student.section = studentSec; // Update for session payload
+      }
+    }
+
     if (studentSec !== cleanSection) {
       throw {
         status: 400,
